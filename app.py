@@ -1,3 +1,17 @@
+import sys
+import subprocess
+
+def install_package(package):
+    try:
+        __import__(package)
+    except ImportError:
+        print(f"[+] Installing {package}...")
+        subprocess.check_call([
+            sys.executable, "-m", "pip", "install", package
+        ])
+
+install_package("instagrapi")
+
 import time
 import random
 import threading
@@ -5,7 +19,6 @@ import os
 import json
 import re
 from instagrapi import Client
-
 # ================= ACCOUNT SETTINGS =================
 USERNAME = "igqve"
 PASSWORD = "273209Ansh"
