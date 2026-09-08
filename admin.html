@@ -1,0 +1,2124 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ALexa HOSTING | Admin</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        margin: 0;
+        background:
+            radial-gradient(circle at 10% 10%, rgba(0, 140, 255, .12), transparent 30%),
+            radial-gradient(circle at 90% 20%, rgba(180, 0, 255, .12), transparent 30%),
+            radial-gradient(circle at 50% 100%, rgba(0, 255, 190, .08), transparent 35%),
+            #05070d;
+        color: #fff;
+        font-family: "Segoe UI", Arial, sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* =========================
+       RGB BACKGROUND
+    ========================== */
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: -2;
+        background:
+            linear-gradient(
+                120deg,
+                rgba(0, 140, 255, .03),
+                rgba(255, 0, 170, .04),
+                rgba(0, 255, 190, .03),
+                rgba(0, 140, 255, .03)
+            );
+        background-size: 400% 400%;
+        animation: rgbBackground 12s ease infinite;
+    }
+
+    @keyframes rgbBackground {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* =========================
+       RGB BORDER
+    ========================== */
+
+    .rgb-border {
+        position: relative;
+        border: 1px solid transparent;
+        background:
+            linear-gradient(#0d111b, #0d111b) padding-box,
+            linear-gradient(
+                90deg,
+                #00d9ff,
+                #0077ff,
+                #a000ff,
+                #ff00a8,
+                #00ffd5,
+                #00d9ff
+            ) border-box;
+        background-size: 100% 100%, 300% 100%;
+        animation: borderRGB 6s linear infinite;
+    }
+
+    @keyframes borderRGB {
+        0%   { background-position: 0 0, 0% 50%; }
+        100% { background-position: 0 0, 300% 50%; }
+    }
+
+    /* =========================
+       GLASS
+    ========================== */
+
+    .glass {
+        background: rgba(10, 14, 24, .78);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .panel {
+        background: rgba(12, 16, 27, .88);
+        border: 1px solid rgba(100,130,255,.16);
+        box-shadow: 0 20px 70px rgba(0,0,0,.35);
+    }
+
+    .panel:hover {
+        border-color: rgba(0,190,255,.35);
+    }
+
+    /* =========================
+       ANIME CHARACTER
+    ========================== */
+
+    .anime-card {
+        position: relative;
+        min-height: 190px;
+        overflow: hidden;
+        border-radius: 20px;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(0, 150, 255, .15),
+                rgba(130, 0, 255, .13),
+                rgba(255, 0, 160, .08)
+            );
+        border: 1px solid rgba(0, 200, 255, .25);
+    }
+
+    .anime-card::before {
+        content: "";
+        position: absolute;
+        width: 240px;
+        height: 240px;
+        right: -80px;
+        top: -70px;
+        border-radius: 50%;
+        background: rgba(0,180,255,.12);
+        filter: blur(35px);
+        animation: floatGlow 5s ease-in-out infinite;
+    }
+
+    @keyframes floatGlow {
+        0%,100% { transform: translateY(0); }
+        50% { transform: translateY(20px); }
+    }
+
+    .anime-character {
+        position: absolute;
+        right: 20px;
+        bottom: -5px;
+        width: 150px;
+        height: 180px;
+        opacity: .95;
+        filter:
+            drop-shadow(0 0 12px rgba(0,190,255,.35))
+            drop-shadow(0 0 25px rgba(150,0,255,.18));
+    }
+
+    .anime-character .hair {
+        position: absolute;
+        width: 100px;
+        height: 115px;
+        right: 20px;
+        top: 10px;
+        border-radius: 55% 45% 45% 55%;
+        background:
+            linear-gradient(135deg,#07182c,#1269b0,#7b2cff);
+        transform: rotate(8deg);
+    }
+
+    .anime-character .hair::after {
+        content: "";
+        position: absolute;
+        width: 50px;
+        height: 80px;
+        left: -18px;
+        top: 45px;
+        background: #0b2342;
+        clip-path: polygon(100% 0, 65% 100%, 25% 65%);
+    }
+
+    .anime-character .face {
+        position: absolute;
+        right: 34px;
+        top: 54px;
+        width: 70px;
+        height: 80px;
+        background: #f1c9bd;
+        border-radius: 45% 45% 48% 48%;
+        transform: rotate(4deg);
+        z-index: 2;
+    }
+
+    .anime-character .eye {
+        position: absolute;
+        width: 10px;
+        height: 15px;
+        background: #17243d;
+        border-radius: 50%;
+        top: 31px;
+    }
+
+    .anime-character .eye.one { left: 17px; }
+    .anime-character .eye.two { right: 17px; }
+
+    .anime-character .mouth {
+        position: absolute;
+        width: 16px;
+        height: 7px;
+        border-bottom: 2px solid #a34a5e;
+        border-radius: 50%;
+        left: 27px;
+        bottom: 20px;
+    }
+
+    .anime-character .body {
+        position: absolute;
+        right: 5px;
+        bottom: -35px;
+        width: 130px;
+        height: 105px;
+        border-radius: 55px 55px 0 0;
+        background:
+            linear-gradient(135deg,#07101f,#17345d,#32106c);
+    }
+
+    .anime-character .collar {
+        position: absolute;
+        width: 50px;
+        height: 35px;
+        right: 43px;
+        bottom: 53px;
+        border-left: 3px solid #00d9ff;
+        border-right: 3px solid #a000ff;
+        transform: skew(-8deg);
+        z-index: 4;
+    }
+
+    /* =========================
+       LOGO
+    ========================== */
+
+    .logo-box {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        background:
+            linear-gradient(135deg,#006eff,#7b00ff,#ff00a8);
+        box-shadow:
+            0 0 18px rgba(0,140,255,.35),
+            0 0 35px rgba(130,0,255,.15);
+        animation: logoPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse {
+        0%,100% { transform: scale(1); }
+        50% { transform: scale(1.04); }
+    }
+
+    .rgb-text {
+        background:
+            linear-gradient(
+                90deg,
+                #00d9ff,
+                #4d7cff,
+                #b000ff,
+                #ff00a8,
+                #00ffd5
+            );
+        background-size: 300% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: textRGB 5s linear infinite;
+    }
+
+    @keyframes textRGB {
+        to { background-position: 300% center; }
+    }
+
+    /* =========================
+       STAT CARDS
+    ========================== */
+
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 18px;
+        padding: 20px;
+        background: rgba(12,16,27,.86);
+        border: 1px solid rgba(100,130,255,.14);
+        transition: .3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(0,220,255,.45);
+        box-shadow: 0 15px 40px rgba(0,100,255,.12);
+    }
+
+    .stat-card::after {
+        content: "";
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        right: -45px;
+        top: -45px;
+        border-radius: 50%;
+        background: rgba(0,200,255,.09);
+        filter: blur(15px);
+    }
+
+    /* =========================
+       INPUTS
+    ========================== */
+
+    input,
+    select {
+        transition: .25s !important;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: #00bfff !important;
+        box-shadow:
+            0 0 0 2px rgba(0,190,255,.08),
+            0 0 20px rgba(0,150,255,.08);
+    }
+
+    /* =========================
+       RANGE
+    ========================== */
+
+    input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 7px;
+        border-radius: 20px;
+        outline: none;
+        background:
+            linear-gradient(
+                90deg,
+                #00ff9d,
+                #00c8ff,
+                #7b00ff,
+                #ff007f
+            );
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 21px;
+        height: 21px;
+        border-radius: 50%;
+        background: #fff;
+        border: 3px solid #168cff;
+        box-shadow: 0 0 15px rgba(0,180,255,.8);
+        cursor: pointer;
+    }
+
+    /* =========================
+       BUTTONS
+    ========================== */
+
+    .neon-btn {
+        position: relative;
+        overflow: hidden;
+        transition: .25s;
+    }
+
+    .neon-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0,170,255,.2);
+    }
+
+    .neon-btn:active {
+        transform: scale(.97);
+    }
+
+    .create-btn {
+        background:
+            linear-gradient(
+                90deg,
+                #006eff,
+                #7b00ff,
+                #ff008c,
+                #006eff
+            );
+        background-size: 300% auto;
+        animation: buttonRGB 5s linear infinite;
+    }
+
+    @keyframes buttonRGB {
+        to { background-position: 300% center; }
+    }
+
+    /* =========================
+       TABLE
+    ========================== */
+
+    .server-table {
+        border-collapse: collapse;
+    }
+
+    .server-table tbody tr {
+        transition: .2s;
+    }
+
+    .server-table tbody tr:hover {
+        background: rgba(0,130,255,.055);
+    }
+
+    /* =========================
+       STATUS
+    ========================== */
+
+    .online-dot {
+        width: 7px;
+        height: 7px;
+        display: inline-block;
+        border-radius: 50%;
+        background: #00ff9d;
+        box-shadow: 0 0 10px #00ff9d;
+        animation: onlinePulse 1.5s infinite;
+    }
+
+    @keyframes onlinePulse {
+        0%,100% { opacity: 1; }
+        50% { opacity: .35; }
+    }
+
+    .floating {
+        animation: floating 4s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+        0%,100% { transform: translateY(0); }
+        50% { transform: translateY(-7px); }
+    }
+
+    /* =========================
+       SCROLLBAR
+    ========================== */
+
+    ::-webkit-scrollbar {
+        width: 7px;
+        height: 7px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #05070d;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(#007bff,#a000ff,#ff008c);
+        border-radius: 10px;
+    }
+
+    /* =========================
+       MOBILE
+    ========================== */
+
+    @media(max-width: 768px) {
+        .anime-character {
+            opacity: .22;
+            right: -5px;
+        }
+
+        .admin-title {
+            font-size: 17px;
+        }
+
+        .server-table {
+            min-width: 1050px;
+        }
+    }
+</style>
+
+</head><body><!-- =========================
+     HEADER
+========================== --><header class="sticky top-0 z-50 glass border-b border-cyan-500/10">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">    <div class="flex items-center gap-3">
+
+        <div class="logo-box">
+            <i class="fas fa-cloud-upload-alt text-xl"></i>
+        </div>
+
+        <div>
+            <h1 class="text-lg md:text-xl font-black tracking-wide">
+                <span class="rgb-text">ALexa HOSTING</span>
+            </h1>
+
+            <p class="text-[10px] text-gray-500 uppercase tracking-[3px]">
+                Admin Control Center
+            </p>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-2 md:gap-4">
+
+        <div class="hidden sm:flex items-center gap-2
+                    bg-cyan-500/5 border border-cyan-500/10
+                    px-3 py-1.5 rounded-full text-xs">
+
+            <span class="online-dot"></span>
+            <span class="text-cyan-300">SYSTEM ONLINE</span>
+        </div>
+
+        <span class="hidden md:block text-xs text-gray-400
+                     bg-white/5 border border-white/5
+                     px-3 py-1.5 rounded-full">
+            <i class="fas fa-user-shield mr-1 text-purple-400"></i>
+            ADMIN
+        </span>
+
+        <a href="/logout"
+           class="neon-btn text-red-400 hover:text-red-300
+                  bg-red-500/5 border border-red-500/10
+                  px-3 py-1.5 rounded-full text-xs">
+            <i class="fas fa-sign-out-alt mr-1"></i>
+            Logout
+        </a>
+    </div>
+</div>
+
+</header><main class="max-w-7xl mx-auto p-4 md:p-6"><!-- =========================
+     HERO
+========================== -->
+
+<section class="anime-card rgb-border mb-7">
+
+    <div class="relative z-10 p-6 md:p-8 max-w-xl">
+
+        <div class="inline-flex items-center gap-2
+                    px-3 py-1 rounded-full
+                    bg-cyan-500/10 border border-cyan-400/20
+                    text-cyan-300 text-[10px] uppercase tracking-widest mb-4">
+
+            <span class="online-dot"></span>
+            ALexa Control System
+        </div>
+
+        <h2 class="admin-title text-2xl md:text-4xl font-black leading-tight">
+            Welcome to the
+            <span class="rgb-text">Admin Panel</span>
+        </h2>
+
+        <p class="text-gray-400 text-sm mt-3 max-w-md">
+            Manage users, servers, resources and hosting configuration
+            from one futuristic control center.
+        </p>
+
+        <div class="flex gap-2 mt-5">
+
+            <span class="text-[10px] px-3 py-1.5 rounded-full
+                         bg-blue-500/10 text-blue-300
+                         border border-blue-500/20">
+                <i class="fas fa-server mr-1"></i>
+                SERVER MANAGER
+            </span>
+
+            <span class="text-[10px] px-3 py-1.5 rounded-full
+                         bg-purple-500/10 text-purple-300
+                         border border-purple-500/20">
+                <i class="fas fa-bolt mr-1"></i>
+                RGB CORE
+            </span>
+        </div>
+    </div>
+
+    <!-- CSS Anime Character -->
+    <div class="anime-character floating" aria-hidden="true">
+        <div class="hair"></div>
+
+        <div class="face">
+            <span class="eye one"></span>
+            <span class="eye two"></span>
+            <span class="mouth"></span>
+        </div>
+
+        <div class="body"></div>
+        <div class="collar"></div>
+    </div>
+
+</section>
+
+
+<!-- =========================
+     STATS
+========================== -->
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5 mb-7">
+
+    <div class="stat-card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-[10px] uppercase tracking-widest text-gray-500">
+                    Total Users
+                </p>
+
+                <p class="text-2xl md:text-3xl font-black mt-1"
+                   id="totalUsers">
+                    {{ users|length }}
+                </p>
+            </div>
+
+            <div class="w-11 h-11 rounded-xl
+                        bg-blue-500/10 border border-blue-500/10
+                        flex items-center justify-center">
+                <i class="fas fa-users text-blue-400"></i>
+            </div>
+        </div>
+
+        <div class="mt-4 h-1 rounded-full bg-gray-800 overflow-hidden">
+            <div class="h-full w-3/4 bg-gradient-to-r
+                        from-blue-500 to-cyan-400"></div>
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-[10px] uppercase tracking-widest text-gray-500">
+                    Total Servers
+                </p>
+
+                <p class="text-2xl md:text-3xl font-black mt-1"
+                   id="totalServers">
+                    {{ total_servers }}
+                </p>
+            </div>
+
+            <div class="w-11 h-11 rounded-xl
+                        bg-green-500/10 border border-green-500/10
+                        flex items-center justify-center">
+                <i class="fas fa-server text-green-400"></i>
+            </div>
+        </div>
+
+        <div class="mt-4 h-1 rounded-full bg-gray-800 overflow-hidden">
+            <div class="h-full w-2/3 bg-gradient-to-r
+                        from-green-400 to-cyan-400"></div>
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-[10px] uppercase tracking-widest text-gray-500">
+                    Running
+                </p>
+
+                <p class="text-2xl md:text-3xl font-black text-green-400 mt-1"
+                   id="totalRunning">
+                    {{ total_running }}
+                </p>
+            </div>
+
+            <div class="w-11 h-11 rounded-xl
+                        bg-green-500/10 border border-green-500/10
+                        flex items-center justify-center">
+                <i class="fas fa-play-circle text-green-400 floating"></i>
+            </div>
+        </div>
+
+        <div class="mt-4 flex items-center gap-2 text-[10px] text-green-400">
+            <span class="online-dot"></span>
+            ACTIVE SERVERS
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-[10px] uppercase tracking-widest text-gray-500">
+                    Stopped
+                </p>
+
+                <p class="text-2xl md:text-3xl font-black text-purple-400 mt-1"
+                   id="totalStopped">
+                    {{ total_servers - total_running }}
+                </p>
+            </div>
+
+            <div class="w-11 h-11 rounded-xl
+                        bg-purple-500/10 border border-purple-500/10
+                        flex items-center justify-center">
+                <i class="fas fa-stop-circle text-purple-400"></i>
+            </div>
+        </div>
+
+        <div class="mt-4 text-[10px] text-gray-500">
+            <i class="fas fa-power-off mr-1"></i>
+            STANDBY
+        </div>
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CREATE SERVER
+========================== -->
+
+<section class="panel rounded-2xl p-5 md:p-6 mb-7">
+
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+
+        <div>
+            <h2 class="text-lg md:text-xl font-black flex items-center gap-2">
+                <span class="w-9 h-9 rounded-xl
+                             bg-blue-500/10
+                             flex items-center justify-center">
+                    <i class="fas fa-plus text-blue-400"></i>
+                </span>
+
+                Create New Server
+            </h2>
+
+            <p class="text-xs text-gray-500 mt-1 ml-11">
+                Deploy a new isolated hosting instance
+            </p>
+        </div>
+
+        <div class="text-[10px] text-gray-500
+                    border border-white/5
+                    bg-white/[.02] px-3 py-1.5 rounded-full">
+            <i class="fas fa-shield-alt text-cyan-400 mr-1"></i>
+            SECURE DEPLOYMENT
+        </div>
+
+    </div>
+
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <!-- Username -->
+        <div>
+            <label class="block text-[10px] uppercase tracking-widest
+                          text-gray-500 mb-2">
+                Username *
+            </label>
+
+            <div class="relative">
+                <i class="fas fa-user absolute left-3 top-3.5
+                          text-gray-600 text-xs"></i>
+
+                <input type="text"
+                       id="newUsername"
+                       placeholder="Enter username"
+                       class="w-full bg-[#070a11]
+                              border border-gray-800
+                              rounded-xl px-4 pl-9 py-3
+                              text-sm text-white outline-none">
+            </div>
+        </div>
+
+
+        <!-- Password -->
+        <div>
+            <label class="block text-[10px] uppercase tracking-widest
+                          text-gray-500 mb-2">
+                Password *
+            </label>
+
+            <div class="relative">
+                <i class="fas fa-key absolute left-3 top-3.5
+                          text-gray-600 text-xs"></i>
+
+                <input type="text"
+                       id="newPassword"
+                       placeholder="Enter password"
+                       class="w-full bg-[#070a11]
+                              border border-gray-800
+                              rounded-xl px-4 pl-9 py-3
+                              text-sm text-white outline-none">
+            </div>
+        </div>
+
+
+        <!-- Type -->
+        <div>
+            <label class="block text-[10px] uppercase tracking-widest
+                          text-gray-500 mb-2">
+                Server Type
+            </label>
+
+            <select id="serverType"
+                    class="w-full bg-[#070a11]
+                           border border-gray-800
+                           rounded-xl px-4 py-3
+                           text-sm text-white outline-none">
+
+                <option value="python">🐍 Python Bot</option>
+                <option value="node">💚 Node.js</option>
+                <option value="static">📄 Static Website</option>
+
+            </select>
+        </div>
+
+
+        <!-- RAM -->
+        <div>
+            <label class="block text-[10px] uppercase tracking-widest
+                          text-gray-500 mb-2">
+                RAM
+            </label>
+
+            <select id="ram"
+                    class="w-full bg-[#070a11]
+                           border border-gray-800
+                           rounded-xl px-4 py-3
+                           text-sm text-white outline-none">
+
+                <option value="128MB">128 MB</option>
+                <option value="256MB">256 MB</option>
+                <option value="512MB" selected>512 MB</option>
+                <option value="1GB">1 GB</option>
+                <option value="2GB">2 GB</option>
+                <option value="4GB">4 GB</option>
+
+            </select>
+        </div>
+
+
+        <!-- Disk -->
+        <div>
+            <label class="block text-[10px] uppercase tracking-widest
+                          text-gray-500 mb-2">
+                Disk Space
+            </label>
+
+            <select id="disk"
+                    class="w-full bg-[#070a11]
+                           border border-gray-800
+                           rounded-xl px-4 py-3
+                           text-sm text-white outline-none">
+
+                <option value="512MB">512 MB</option>
+                <option value="1GB" selected>1 GB</option>
+                <option value="2GB">2 GB</option>
+                <option value="5GB">5 GB</option>
+                <option value="10GB">10 GB</option>
+
+            </select>
+        </div>
+
+
+        <!-- Expiry -->
+        <div>
+            <label class="block text-[10px] uppercase tracking-widest
+                          text-gray-500 mb-2">
+                Expiry Days
+            </label>
+
+            <input type="number"
+                   id="expiryDays"
+                   placeholder="30"
+                   value="30"
+                   min="1"
+                   max="365"
+                   class="w-full bg-[#070a11]
+                          border border-gray-800
+                          rounded-xl px-4 py-3
+                          text-sm text-white outline-none">
+        </div>
+
+    </div>
+
+
+    <!-- CPU -->
+
+    <div class="mt-6 p-4 rounded-xl
+                bg-[#070a11]
+                border border-white/5">
+
+        <div class="flex flex-wrap justify-between gap-3 mb-3">
+
+            <label class="text-xs text-gray-400">
+                <i class="fas fa-microchip text-cyan-400 mr-1"></i>
+                CPU Rate Limit
+            </label>
+
+            <span id="cpuLimitValue"
+                  class="text-cyan-400 font-black text-sm">
+                80%
+            </span>
+
+        </div>
+
+        <input type="range"
+               id="cpuLimit"
+               min="10"
+               max="100"
+               value="80"
+               class="w-full"
+               oninput="
+                   document.getElementById('cpuLimitValue').innerText =
+                   this.value + '%'
+               ">
+
+        <div class="flex flex-wrap gap-2 mt-4">
+
+            <button onclick="setQuickCPU(30)"
+                    class="neon-btn bg-green-500/10
+                           border border-green-500/20
+                           text-green-400 px-3 py-1.5
+                           rounded-lg text-xs">
+                30%
+            </button>
+
+            <button onclick="setQuickCPU(50)"
+                    class="neon-btn bg-yellow-500/10
+                           border border-yellow-500/20
+                           text-yellow-400 px-3 py-1.5
+                           rounded-lg text-xs">
+                50%
+            </button>
+
+            <button onclick="setQuickCPU(80)"
+                    class="neon-btn bg-blue-500/10
+                           border border-blue-500/20
+                           text-blue-400 px-3 py-1.5
+                           rounded-lg text-xs">
+                80%
+            </button>
+
+            <button onclick="setQuickCPU(100)"
+                    class="neon-btn bg-red-500/10
+                           border border-red-500/20
+                           text-red-400 px-3 py-1.5
+                           rounded-lg text-xs">
+                100%
+            </button>
+
+        </div>
+
+        <p class="text-[10px] text-gray-600 mt-3">
+            <i class="fas fa-info-circle mr-1"></i>
+            Server will auto-stop if CPU usage exceeds this limit.
+        </p>
+
+    </div>
+
+
+    <!-- QUICK TEMPLATES -->
+
+    <div class="mt-6">
+
+        <p class="text-[10px] uppercase tracking-widest
+                  text-gray-500 mb-3">
+            <i class="fas fa-bolt text-yellow-400 mr-1"></i>
+            Quick Templates
+        </p>
+
+        <div class="flex flex-wrap gap-2">
+
+            <button onclick="quickTemplate('discord')"
+                    class="neon-btn bg-indigo-500/10
+                           border border-indigo-500/20
+                           px-4 py-2 rounded-xl text-xs">
+                🤖 Discord Bot
+            </button>
+
+            <button onclick="quickTemplate('telegram')"
+                    class="neon-btn bg-blue-500/10
+                           border border-blue-500/20
+                           px-4 py-2 rounded-xl text-xs">
+                📨 Telegram Bot
+            </button>
+
+            <button onclick="quickTemplate('flask')"
+                    class="neon-btn bg-green-500/10
+                           border border-green-500/20
+                           px-4 py-2 rounded-xl text-xs">
+                🌐 Flask App
+            </button>
+
+            <button onclick="quickTemplate('node')"
+                    class="neon-btn bg-purple-500/10
+                           border border-purple-500/20
+                           px-4 py-2 rounded-xl text-xs">
+                💚 Node.js App
+            </button>
+
+        </div>
+    </div>
+
+
+    <!-- CREATE -->
+
+    <button onclick="createServer()"
+            class="create-btn neon-btn
+                   mt-6 px-7 py-3 rounded-xl
+                   font-black text-sm
+                   flex items-center gap-2">
+
+        <i class="fas fa-rocket"></i>
+        CREATE SERVER
+
+    </button>
+
+</section>
+
+
+<!-- =========================
+     USERS / SERVERS
+========================== -->
+
+<section class="panel rounded-2xl overflow-hidden">
+
+    <div class="p-5 md:p-6
+                border-b border-white/5
+                flex flex-wrap justify-between
+                items-center gap-3">
+
+        <div>
+
+            <h2 class="text-lg md:text-xl font-black">
+                <i class="fas fa-database text-cyan-400 mr-2"></i>
+                User & Server Database
+            </h2>
+
+            <p class="text-xs text-gray-500 mt-1">
+                Manage all deployed hosting instances
+            </p>
+
+        </div>
+
+        <button onclick="location.reload()"
+                class="neon-btn
+                       bg-white/5 hover:bg-white/10
+                       border border-white/5
+                       px-4 py-2 rounded-xl
+                       text-xs">
+
+            <i class="fas fa-sync-alt mr-1"></i>
+            Refresh
+        </button>
+
+    </div>
+
+
+    <div class="overflow-x-auto">
+
+        <table class="server-table w-full">
+
+            <thead class="bg-[#070a11]">
+
+                <tr class="text-left text-gray-500 text-[10px]
+                           uppercase tracking-widest">
+
+                    <th class="p-4">User</th>
+                    <th class="p-4">Password</th>
+                    <th class="p-4">Server</th>
+                    <th class="p-4">Config</th>
+                    <th class="p-4">CPU</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">Expiry</th>
+                    <th class="p-4">Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% if users|length == 0 %}
+
+                <tr>
+                    <td colspan="8"
+                        class="p-12 text-center text-gray-600">
+
+                        <i class="fas fa-inbox text-4xl mb-4 block"></i>
+
+                        <p class="text-sm">
+                            No users found.
+                        </p>
+
+                    </td>
+                </tr>
+
+                {% endif %}
+
+
+                {% for user in users %}
+
+                    {% for server in user.servers %}
+
+                    <tr class="border-b border-white/5">
+
+                        <!-- USER -->
+
+                        <td class="p-4">
+
+                            <div class="flex items-center gap-3">
+
+                                <div class="w-9 h-9 rounded-xl
+                                            bg-gradient-to-br
+                                            from-blue-600/30
+                                            to-purple-600/30
+                                            border border-blue-500/10
+                                            flex items-center justify-center">
+
+                                    <span class="text-xs font-black
+                                                 text-cyan-300">
+
+                                        {{ user.username[0] | upper }}
+
+                                    </span>
+
+                                </div>
+
+                                <div>
+                                    <p class="text-sm font-bold">
+                                        {{ user.username }}
+                                    </p>
+
+                                    <p class="text-[9px] text-gray-600">
+                                        HOSTING USER
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- PASSWORD -->
+
+                        <td class="p-4">
+
+                            <div class="flex items-center gap-2">
+
+                                <span
+                                    class="text-gray-500 text-xs font-mono"
+                                    id="pass-{{ server.server_id }}">
+                                    ••••••••
+                                </span>
+
+                                <button
+                                    onclick="togglePassword('{{ server.server_id }}', '{{ user.password }}')"
+                                    class="text-gray-600
+                                           hover:text-cyan-400">
+
+                                    <i class="fas fa-eye text-xs"></i>
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- SERVER -->
+
+                        <td class="p-4">
+
+                            <a href="{{ server.login_url }}"
+                               target="_blank"
+                               class="text-cyan-400
+                                      hover:text-cyan-300
+                                      text-xs flex items-center gap-2">
+
+                                <span class="w-6 h-6 rounded-lg
+                                             bg-cyan-500/10
+                                             flex items-center justify-center">
+
+                                    <i class="fas fa-external-link-alt
+                                              text-[9px]"></i>
+
+                                </span>
+
+                                {{ server.server_id[:12] }}...
+
+                            </a>
+
+                        </td>
+
+
+                        <!-- CONFIG -->
+
+                        <td class="p-4">
+
+                            <div class="flex flex-wrap gap-1">
+
+                                <span class="bg-blue-500/10
+                                             border border-blue-500/10
+                                             text-blue-400
+                                             px-2 py-1 rounded-lg
+                                             text-[9px]">
+
+                                    {{ server.type }}
+
+                                </span>
+
+                                <span class="bg-purple-500/10
+                                             border border-purple-500/10
+                                             text-purple-400
+                                             px-2 py-1 rounded-lg
+                                             text-[9px]">
+
+                                    {{ server.ram }}
+
+                                </span>
+
+                                <span class="bg-gray-500/10
+                                             border border-gray-500/10
+                                             text-gray-400
+                                             px-2 py-1 rounded-lg
+                                             text-[9px]">
+
+                                    {{ server.disk }}
+
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- CPU -->
+
+                        <td class="p-4">
+
+                            <div class="flex items-center gap-2">
+
+                                <div class="w-16 bg-gray-900
+                                            rounded-full h-1.5 overflow-hidden">
+
+                                    <div class="h-full rounded-full"
+                                         style="
+                                         width: {{ server.cpu_limit | default(80) }}%;
+                                         background:
+                                         {% if server.cpu_limit | default(80) <= 30 %}
+                                             #00ff9d
+                                         {% elif server.cpu_limit | default(80) <= 60 %}
+                                             #ffd000
+                                         {% elif server.cpu_limit | default(80) <= 80 %}
+                                             #ff7a00
+                                         {% else %}
+                                             #ff1744
+                                         {% endif %};
+                                         ">
+                                    </div>
+
+                                </div>
+
+                                <span class="text-[10px] font-black">
+
+                                    {{ server.cpu_limit | default(80) }}%
+
+                                </span>
+
+                                <button
+                                    onclick="changeCPULimit('{{ server.server_id }}', {{ server.cpu_limit | default(80) }})"
+                                    class="text-gray-600
+                                           hover:text-cyan-400">
+
+                                    <i class="fas fa-edit text-[9px]"></i>
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td class="p-4">
+
+                            {% if server.rate_limit_exceeded %}
+
+                            <span class="px-2 py-1 rounded-lg
+                                         text-[9px]
+                                         bg-orange-500/10
+                                         border border-orange-500/10
+                                         text-orange-400
+                                         flex items-center gap-1 w-fit">
+
+                                <i class="fas fa-exclamation-triangle"></i>
+                                RATE LIMITED
+
+                            </span>
+
+                            {% elif server.status == 'running' %}
+
+                            <span class="px-2 py-1 rounded-lg
+                                         text-[9px]
+                                         bg-green-500/10
+                                         border border-green-500/10
+                                         text-green-400
+                                         flex items-center gap-2 w-fit">
+
+                                <span class="online-dot"></span>
+                                RUNNING
+
+                            </span>
+
+                            {% else %}
+
+                            <span class="px-2 py-1 rounded-lg
+                                         text-[9px]
+                                         bg-red-500/10
+                                         border border-red-500/10
+                                         text-red-400
+                                         flex items-center gap-2 w-fit">
+
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                STOPPED
+
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- EXPIRY -->
+
+                        <td class="p-4">
+
+                            <span class="text-yellow-400 text-[10px]">
+
+                                <i class="far fa-calendar-alt mr-1"></i>
+
+                                {{ server.expiry[:10] if server.expiry else 'N/A' }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- ACTIONS -->
+
+                        <td class="p-4">
+
+                            <div class="flex gap-2">
+
+                                <button
+                                    onclick="changeCPULimit('{{ server.server_id }}', {{ server.cpu_limit | default(80) }})"
+                                    class="neon-btn
+                                           text-cyan-400
+                                           bg-cyan-500/5
+                                           border border-cyan-500/10
+                                           px-2.5 py-1.5
+                                           rounded-lg"
+                                    title="Change CPU">
+
+                                    <i class="fas fa-microchip text-xs"></i>
+
+                                </button>
+
+
+                                <button
+                                    onclick="deleteServer('{{ user.username }}', '{{ server.server_id }}')"
+                                    class="neon-btn
+                                           text-red-400
+                                           bg-red-500/5
+                                           border border-red-500/10
+                                           px-2.5 py-1.5
+                                           rounded-lg"
+                                    title="Delete Server">
+
+                                    <i class="fas fa-trash text-xs"></i>
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="text-center py-7">
+
+    <p class="text-[10px] uppercase tracking-[4px] text-gray-700">
+        ALexa HOSTING • Admin Core • Secure Panel
+    </p>
+
+    <p class="text-[9px] text-gray-800 mt-2">
+        RGB Control System
+    </p>
+
+</footer>
+
+</main><!-- =========================
+     JAVASCRIPT
+========================== --><script>
+
+    /* =========================
+       CPU PRESETS
+    ========================== */
+
+    function setQuickCPU(value) {
+
+        const cpu = document.getElementById('cpuLimit');
+        const display = document.getElementById('cpuLimitValue');
+
+        cpu.value = value;
+        display.innerText = value + '%';
+    }
+
+
+    /* =========================
+       RANDOM PASSWORD
+    ========================== */
+
+    function generatePassword() {
+
+        const chars =
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+        let password = '';
+
+        for (let i = 0; i < 12; i++) {
+            password += chars.charAt(
+                Math.floor(Math.random() * chars.length)
+            );
+        }
+
+        return password;
+    }
+
+
+    /* =========================
+       QUICK TEMPLATES
+    ========================== */
+
+    function quickTemplate(type) {
+
+        document.getElementById('serverType').value = 'python';
+
+        const id =
+            Math.random().toString(36).substring(2, 6);
+
+        if (type === 'discord') {
+
+            document.getElementById('newUsername').value =
+                'discord_bot_' + id;
+
+            document.getElementById('ram').value =
+                '256MB';
+
+            setQuickCPU(50);
+
+        }
+
+        else if (type === 'telegram') {
+
+            document.getElementById('newUsername').value =
+                'telegram_bot_' + id;
+
+            document.getElementById('ram').value =
+                '128MB';
+
+            setQuickCPU(30);
+
+        }
+
+        else if (type === 'flask') {
+
+            document.getElementById('newUsername').value =
+                'flask_app_' + id;
+
+            document.getElementById('ram').value =
+                '512MB';
+
+            setQuickCPU(80);
+
+        }
+
+        else if (type === 'node') {
+
+            document.getElementById('serverType').value =
+                'node';
+
+            document.getElementById('newUsername').value =
+                'node_app_' + id;
+
+            document.getElementById('ram').value =
+                '256MB';
+
+            setQuickCPU(60);
+
+        }
+
+        document.getElementById('newPassword').value =
+            generatePassword();
+
+        document.getElementById('newUsername').focus();
+
+    }
+
+
+    /* =========================
+       PASSWORD TOGGLE
+    ========================== */
+
+    function togglePassword(serverId, password) {
+
+        const element =
+            document.getElementById('pass-' + serverId);
+
+        if (element.innerText === '••••••••') {
+            element.innerText = password;
+        } else {
+            element.innerText = '••••••••';
+        }
+    }
+
+
+    /* =========================
+       CHANGE CPU
+    ========================== */
+
+    function changeCPULimit(serverId, currentLimit) {
+
+        Swal.fire({
+
+            title: 'CPU RATE LIMIT',
+
+            text: `Current limit: ${currentLimit}%`,
+
+            input: 'range',
+
+            inputAttributes: {
+                min: '10',
+                max: '100',
+                step: '5'
+            },
+
+            inputValue: currentLimit,
+
+            background: '#080b12',
+            color: '#fff',
+
+            confirmButtonColor: '#007bff',
+
+            cancelButtonColor: '#252a36',
+
+            showCancelButton: true,
+
+            confirmButtonText: 'UPDATE',
+
+            didOpen: () => {
+
+                const range = Swal.getInput();
+
+                const valueDisplay =
+                    document.createElement('span');
+
+                valueDisplay.style.cssText =
+                    `
+                    display:block;
+                    text-align:center;
+                    font-size:28px;
+                    font-weight:900;
+                    color:#00c8ff;
+                    margin-top:12px;
+                    text-shadow:0 0 15px rgba(0,200,255,.5);
+                    `;
+
+                valueDisplay.textContent =
+                    range.value + '%';
+
+                range.parentNode.insertBefore(
+                    valueDisplay,
+                    range.nextSibling
+                );
+
+                range.addEventListener(
+                    'input',
+                    () => {
+                        valueDisplay.textContent =
+                            range.value + '%';
+                    }
+                );
+            }
+
+        }).then(result => {
+
+            if (!result.isConfirmed) return;
+
+            const newLimit =
+                parseInt(result.value);
+
+            fetch(`/admin/set_rate_limit/${serverId}`, {
+
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    cpu_limit: newLimit
+                })
+
+            })
+
+            .then(r => r.json())
+
+            .then(data => {
+
+                if (data.success) {
+
+                    Swal.fire({
+                        title: 'UPDATED',
+                        html:
+                            `CPU Limit set to
+                             <strong>${newLimit}%</strong>`,
+                        icon: 'success',
+                        background: '#080b12',
+                        color: '#fff',
+                        confirmButtonColor: '#007bff'
+                    });
+
+                    setTimeout(
+                        () => location.reload(),
+                        1000
+                    );
+
+                } else {
+
+                    Swal.fire({
+                        title: 'ERROR',
+                        text: data.error || 'Update failed',
+                        icon: 'error',
+                        background: '#080b12',
+                        color: '#fff'
+                    });
+
+                }
+
+            })
+
+            .catch(() => {
+
+                Swal.fire({
+                    title: 'CONNECTION ERROR',
+                    text: 'Could not update CPU limit.',
+                    icon: 'error',
+                    background: '#080b12',
+                    color: '#fff'
+                });
+
+            });
+
+        });
+    }
+
+
+    /* =========================
+       CREATE SERVER
+    ========================== */
+
+    function createServer() {
+
+        const data = {
+
+            username:
+                document.getElementById('newUsername')
+                .value.trim(),
+
+            password:
+                document.getElementById('newPassword')
+                .value.trim(),
+
+            server_type:
+                document.getElementById('serverType')
+                .value,
+
+            ram:
+                document.getElementById('ram')
+                .value,
+
+            disk:
+                document.getElementById('disk')
+                .value,
+
+            expiry_days:
+                parseInt(
+                    document.getElementById('expiryDays')
+                    .value
+                ) || 30,
+
+            cpu_limit:
+                parseInt(
+                    document.getElementById('cpuLimit')
+                    .value
+                ) || 80
+        };
+
+
+        if (!data.username || !data.password) {
+
+            Swal.fire({
+                title: 'MISSING INFORMATION',
+                text: 'Username and password are required!',
+                icon: 'error',
+                background: '#080b12',
+                color: '#fff',
+                confirmButtonColor: '#007bff'
+            });
+
+            return;
+        }
+
+
+        if (
+            data.cpu_limit < 10 ||
+            data.cpu_limit > 100
+        ) {
+
+            Swal.fire({
+                title: 'INVALID CPU',
+                text: 'CPU limit must be between 10% and 100%.',
+                icon: 'error',
+                background: '#080b12',
+                color: '#fff'
+            });
+
+            return;
+        }
+
+
+        Swal.fire({
+
+            title: 'DEPLOYING SERVER',
+
+            html: `
+                <div style="
+                    color:#8b9bb4;
+                    font-size:13px;
+                ">
+                    Initializing hosting instance...
+                    <br>
+                    Please wait.
+                </div>
+            `,
+
+            allowOutsideClick: false,
+
+            showConfirmButton: false,
+
+            background: '#080b12',
+            color: '#fff',
+
+            didOpen: () => {
+                Swal.showLoading();
+            }
+
+        });
+
+
+        fetch('/admin/create_server', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify(data)
+
+        })
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            if (data.success) {
+
+                Swal.fire({
+
+                    title: '🚀 SERVER CREATED',
+
+                    html: `
+                        <div style="
+                            text-align:left;
+                            background:#060910;
+                            border:1px solid rgba(0,200,255,.15);
+                            border-radius:12px;
+                            padding:15px;
+                            line-height:2;
+                        ">
+
+                            <p>
+                                <b style="color:#00c8ff">
+                                Username:
+                                </b>
+                                ${data.username}
+                            </p>
+
+                            <p>
+                                <b style="color:#00c8ff">
+                                Password:
+                                </b>
+                                ${data.password}
+                            </p>
+
+                            <p>
+                                <b style="color:#00c8ff">
+                                CPU:
+                                </b>
+                                ${data.cpu_limit || 80}%
+                            </p>
+
+                            <p>
+                                <b style="color:#00c8ff">
+                                Host:
+                                </b>
+                                ${data.hostname}
+                            </p>
+
+                            <p>
+                                <b style="color:#00c8ff">
+                                Login:
+                                </b>
+                                <a
+                                    href="${data.login_url}"
+                                    target="_blank"
+                                    style="color:#4d9fff">
+                                    Open Panel
+                                </a>
+                            </p>
+
+                        </div>
+                    `,
+
+                    icon: 'success',
+
+                    background: '#080b12',
+
+                    color: '#fff',
+
+                    confirmButtonColor: '#007bff',
+
+                    confirmButtonText: 'DONE'
+
+                });
+
+
+                document.getElementById(
+                    'newUsername'
+                ).value = '';
+
+                document.getElementById(
+                    'newPassword'
+                ).value = '';
+
+                setQuickCPU(80);
+
+
+                setTimeout(
+                    () => location.reload(),
+                    3000
+                );
+
+            }
+
+            else {
+
+                Swal.fire({
+
+                    title: 'CREATE FAILED',
+
+                    text:
+                        data.error ||
+                        'Something went wrong.',
+
+                    icon: 'error',
+
+                    background: '#080b12',
+
+                    color: '#fff'
+
+                });
+
+            }
+
+        })
+
+        .catch(() => {
+
+            Swal.fire({
+
+                title: 'CONNECTION ERROR',
+
+                text:
+                    'Could not connect to hosting server.',
+
+                icon: 'error',
+
+                background: '#080b12',
+
+                color: '#fff'
+
+            });
+
+        });
+    }
+
+
+    /* =========================
+       DELETE SERVER
+    ========================== */
+
+    function deleteServer(username, serverId) {
+
+        Swal.fire({
+
+            title: 'DELETE SERVER?',
+
+            html: `
+
+                <div style="
+                    text-align:left;
+                    background:#07090f;
+                    padding:15px;
+                    border-radius:12px;
+                    border:1px solid rgba(255,50,80,.12);
+                ">
+
+                    <p style="color:#d0d5df">
+                        Are you sure you want to delete this server?
+                    </p>
+
+                    <p style="
+                        color:#ff647c;
+                        margin-top:10px;
+                        font-size:12px;
+                    ">
+                        <b>User:</b> ${username}
+                    </p>
+
+                    <p style="
+                        color:#ff647c;
+                        font-size:12px;
+                    ">
+                        <b>Server:</b> ${serverId}
+                    </p>
+
+                    <p style="
+                        color:#ffc107;
+                        margin-top:12px;
+                        font-size:11px;
+                    ">
+                        ⚠️ All server files will be deleted.
+                    </p>
+
+                </div>
+            `,
+
+            icon: 'warning',
+
+            background: '#080b12',
+
+            color: '#fff',
+
+            showCancelButton: true,
+
+            confirmButtonColor: '#ef3340',
+
+            cancelButtonColor: '#252a36',
+
+            confirmButtonText: 'DELETE SERVER',
+
+            cancelButtonText: 'CANCEL'
+
+        })
+
+        .then(result => {
+
+            if (!result.isConfirmed) return;
+
+
+            Swal.fire({
+
+                title: 'DELETING...',
+
+                text: 'Removing server instance.',
+
+                allowOutsideClick: false,
+
+                showConfirmButton: false,
+
+                background: '#080b12',
+
+                color: '#fff',
+
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+
+            });
+
+
+            fetch(
+                `/admin/delete_server/${username}/${serverId}`,
+                {
+                    method: 'POST'
+                }
+            )
+
+            .then(() => {
+
+                Swal.fire({
+
+                    title: 'DELETED',
+
+                    text: 'Server has been deleted.',
+
+                    icon: 'success',
+
+                    background: '#080b12',
+
+                    color: '#fff',
+
+                    confirmButtonColor: '#007bff'
+
+                });
+
+                setTimeout(
+                    () => location.reload(),
+                    1000
+                );
+
+            })
+
+            .catch(() => {
+
+                Swal.fire({
+
+                    title: 'ERROR',
+
+                    text: 'Could not delete server.',
+
+                    icon: 'error',
+
+                    background: '#080b12',
+
+                    color: '#fff'
+
+                });
+
+            });
+
+        });
+    }
+
+
+    /* =========================
+       KEYBOARD SHORTCUTS
+    ========================== */
+
+    document.addEventListener(
+        'keydown',
+        function(e) {
+
+            if (e.ctrlKey && e.key.toLowerCase() === 'r') {
+
+                e.preventDefault();
+                location.reload();
+
+            }
+
+            if (e.ctrlKey && e.key.toLowerCase() === 'n') {
+
+                e.preventDefault();
+
+                const input =
+                    document.getElementById(
+                        'newUsername'
+                    );
+
+                if (input) input.focus();
+
+            }
+
+        }
+    );
+
+
+    /* =========================
+       AUTO RGB TITLE
+    ========================== */
+
+    let titleState = true;
+
+    setInterval(() => {
+
+        document.title = titleState
+            ? 'ALexa HOSTING | Admin'
+            : '⚡ ALexa CONTROL CENTER';
+
+        titleState = !titleState;
+
+    }, 3000);
+
+</script></body>
+</html>
