@@ -1,0 +1,103 @@
+{
+    "admin": {
+        "password": "admin123",
+        "role": "admin"
+    },
+    "Alexa_CODEX69838": {
+        "password": "wLJMWdusjc",
+        "role": "user",
+        "servers": [
+            {
+                "server_id": "429eddad",
+                "login_url": "/429eddad/login",
+                "dashboard_url": "/429eddad/home",
+                "full_link": "https://codex-hosting-y49a.onrender.com/429eddad/login",
+                "type": "python",
+                "ram": "1GB",
+                "disk": "1GB",
+                "status": "stopped",
+                "pid": null,
+                "created": "2026-06-19 10:58:22.558914",
+                "expiry": "2026-06-22 10:58:22.558593",
+                "main_file": "main.py",
+                "requirements_file": "requirements.txt",
+                "cpu_limit": 30,
+                "rate_limit_exceeded": false,
+                "stopped_by_user": false
+            }
+        ]
+    },
+    "Alexa_CODEX39434": {
+        "password": "mu2AHmN8gC",
+        "role": "user",
+        "servers": [
+            {
+                "server_id": "5b8dfbb2",
+                "login_url": "/5b8dfbb2/login",
+                "dashboard_url": "/5b8dfbb2/home",
+                "full_link": "https://codex-hosting-y49a.onrender.com/5b8dfbb2/login",
+                "type": "python",
+                "ram": "1GB",
+                "disk": "1GB",
+                "status": "stopped",
+                "pid": null,
+                "created": "2026-06-19 11:54:05.438754",
+                "expiry": "2026-06-22 11:54:05.438395",
+                "main_file": "main.py",
+                "requirements_file": "requirements.txt",
+                "cpu_limit": 30,
+                "rate_limit_exceeded": false,
+                "stopped_by_user": false
+            }
+        ]
+    },
+    "Alexa_CODEX98323": {
+        "password": "bjMly3vgjs",
+        "role": "user",
+        "servers": [
+            {
+                "server_id": "205c836f",
+                "login_url": "/205c836f/login",
+                "dashboard_url": "/205c836f/home",
+                "full_link": "https://codex-hosting-y49a.onrender.com/205c836f/login",
+                "type": "python",
+                "ram": "1GB",
+                "disk": "1GB",
+                "status": "running",
+                "pid": 15567,
+                "created": "2026-06-19 11:55:30.446631",
+                "expiry": "2026-06-22 11:55:30.446100",
+                "main_file": "main.py",
+                "requirements_file": "requirements.txt",
+                "cpu_limit": 30,
+                "rate_limit_exceeded": false,
+                "stopped_by_user": true,
+                "started_at": "2026-06-20 03:25:59.843755"
+            }
+        ]
+    },
+    "Alexa_CODEX23358": {
+        "password": "IHNBiMGBDu",
+        "role": "user",
+        "servers": [
+            {
+                "server_id": "edfbc973",
+                "login_url": "/edfbc973/login",
+                "dashboard_url": "/edfbc973/home",
+                "full_link": "https://codex-hosting-y49a.onrender.com/edfbc973/login",
+                "type": "python",
+                "ram": "1GB",
+                "disk": "1GB",
+                "status": "stopped",
+                "pid": null,
+                "created": "2026-06-19 11:55:33.626022",
+                "expiry": "2026-06-22 11:55:33.625540",
+                "main_file": "main.py",
+                "requirements_file": "requirements.txt",
+                "cpu_limit": 30,
+                "rate_limit_exceeded": false,
+                "stopped_by_user": false
+            }
+        ]
+    }
+}
