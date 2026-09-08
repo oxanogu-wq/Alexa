@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Server Error | ALEXA HOSTING</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(0,255,255,.13), transparent 30%),
+                radial-gradient(circle at 85% 20%, rgba(255,0,140,.13), transparent 30%),
+                radial-gradient(circle at 50% 90%, rgba(130,0,255,.14), transparent 35%),
+                #05070d;
+            color: white;
+        }
+
+        /* RGB Background */
+        .rgb-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(0,255,255,.035),
+                    transparent 30%,
+                    rgba(255,0,140,.035),
+                    transparent 70%,
+                    rgba(120,0,255,.035)
+                );
+            animation: bgMove 8s linear infinite;
+        }
+
+        @keyframes bgMove {
+            0% { transform: translateX(-3%); }
+            50% { transform: translateX(3%); }
+            100% { transform: translateX(-3%); }
+        }
+
+        /* Cyber Grid */
+        .grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .15;
+            background-image:
+                linear-gradient(rgba(0,255,255,.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,0,180,.12) 1px, transparent 1px);
+            background-size: 45px 45px;
+            mask-image: linear-gradient(to bottom, transparent, black, transparent);
+        }
+
+        /* Scanlines */
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .06;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 3px,
+                rgba(255,255,255,.08) 4px
+            );
+        }
+
+        /* Floating RGB Orbs */
+        .orb {
+            position: fixed;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: .25;
+            pointer-events: none;
+            animation: float 7s ease-in-out infinite;
+        }
+
+        .orb1 {
+            background: #00ffff;
+            top: 5%;
+            left: 5%;
+        }
+
+        .orb2 {
+            background: #ff008c;
+            bottom: 5%;
+            right: 5%;
+            animation-delay: -2s;
+        }
+
+        .orb3 {
+            background: #7c00ff;
+            top: 45%;
+            right: 15%;
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%,100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-25px) scale(1.08);
+            }
+        }
+
+        /* Main Card */
+        .error-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 470px;
+            padding: 2px;
+            border-radius: 28px;
+            background: conic-gradient(
+                from 0deg,
+                #00ffff,
+                #0066ff,
+                #a000ff,
+                #ff008c,
+                #ff0055,
+                #00ffff
+            );
+            animation: rgbBorder 4s linear infinite;
+            box-shadow:
+                0 0 25px rgba(0,255,255,.18),
+                0 0 50px rgba(255,0,150,.12);
+        }
+
+        @keyframes rgbBorder {
+            to {
+                filter: hue-rotate(360deg);
+            }
+        }
+
+        .error-card {
+            position: relative;
+            background: rgba(8,10,18,.94);
+            backdrop-filter: blur(20px);
+            border-radius: 26px;
+            padding: 34px 28px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .error-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                #00ffff,
+                #ff00aa,
+                transparent
+            );
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                left: 100%;
+            }
+        }
+
+        /* Logo */
+        .logo-box {
+            width: 82px;
+            height: 82px;
+            margin: 0 auto 18px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: linear-gradient(
+                135deg,
+                rgba(0,255,255,.18),
+                rgba(255,0,150,.16),
+                rgba(120,0,255,.18)
+            );
+
+            border: 1px solid rgba(0,255,255,.45);
+
+            box-shadow:
+                0 0 25px rgba(0,255,255,.18),
+                inset 0 0 25px rgba(255,0,150,.08);
+
+            animation: logoPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%,100% {
+                transform: scale(1);
+                box-shadow:
+                    0 0 20px rgba(0,255,255,.18),
+                    inset 0 0 20px rgba(255,0,150,.08);
+            }
+
+            50% {
+                transform: scale(1.04);
+                box-shadow:
+                    0 0 35px rgba(255,0,150,.25),
+                    inset 0 0 30px rgba(0,255,255,.12);
+            }
+        }
+
+        .logo-box i {
+            font-size: 38px;
+            background: linear-gradient(
+                90deg,
+                #00ffff,
+                #0088ff,
+                #c000ff,
+                #ff008c
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* RGB Title */
+        .rgb-title {
+            font-size: 27px;
+            font-weight: 800;
+            background: linear-gradient(
+                90deg,
+                #00ffff,
+                #0088ff,
+                #b000ff,
+                #ff008c,
+                #00ffff
+            );
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rgbText 4s linear infinite;
+        }
+
+        @keyframes rgbText {
+            to {
+                background-position: 300% center;
+            }
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 8px;
+            padding: 5px 11px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #00ffff;
+            border: 1px solid rgba(0,255,255,.3);
+            background: rgba(0,255,255,.06);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #00ffff;
+            box-shadow: 0 0 10px #00ffff;
+            animation: blink 1.2s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: .25; }
+        }
+
+        /* Error Icon */
+        .error-icon {
+            width: 92px;
+            height: 92px;
+            margin: 26px auto 18px;
+            border-radius: 25px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(255,0,100,.08);
+            border: 1px solid rgba(255,0,130,.5);
+
+            box-shadow:
+                0 0 25px rgba(255,0,120,.14),
+                inset 0 0 20px rgba(255,0,120,.06);
+
+            animation: errorPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes errorPulse {
+            0%,100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .error-icon i {
+            font-size: 42px;
+            background: linear-gradient(
+                135deg,
+                #ffcc00,
+                #ff4d6d,
+                #ff008c
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Server Link Box */
+        .server-box {
+            position: relative;
+            margin: 20px 0;
+            padding: 14px;
+            border-radius: 14px;
+            background: rgba(0,0,0,.32);
+            border: 1px solid rgba(0,255,255,.15);
+            text-align: left;
+        }
+
+        .server-label {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .server-link {
+            font-size: 12px;
+            color: #aeb8c7;
+            word-break: break-all;
+        }
+
+        /* Contact Button */
+        .contact-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+
+            padding: 12px 25px;
+            border-radius: 13px;
+
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+
+            background: linear-gradient(
+                90deg,
+                #0066ff,
+                #7c00ff,
+                #ff008c,
+                #0066ff
+            );
+
+            background-size: 300% 100%;
+            animation: buttonRGB 4s linear infinite;
+
+            box-shadow:
+                0 0 20px rgba(0,120,255,.2);
+            transition: .25s ease;
+        }
+
+        @keyframes buttonRGB {
+            to {
+                background-position: 300% 0;
+            }
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow:
+                0 0 30px rgba(255,0,150,.3);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 22px;
+            font-size: 10px;
+            color: #4b5563;
+            letter-spacing: .5px;
+        }
+
+        .footer i {
+            color: #00ffff;
+            margin-right: 5px;
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            .error-card {
+                padding: 28px 20px;
+            }
+
+            .error-wrapper {
+                max-width: 100%;
+            }
+
+            .rgb-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="rgb-bg"></div>
+    <div class="grid"></div>
+    <div class="scanlines"></div>
+
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <main class="min-h-screen flex items-center justify-center p-4">
+
+        <div class="error-wrapper">
+
+            <div class="error-card">
+
+                <!-- Logo -->
+                <div class="logo-box">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+
+                <!-- Brand -->
+                <div class="rgb-title">
+                    ALEXA HOSTING
+                </div>
+
+                <div class="status">
+                    <span class="status-dot"></span>
+                    SERVER STATUS
+                </div>
+
+                {% if error_type == "expired" %}
+
+                    <!-- Expired -->
+                    <div class="error-icon"
+                         style="border-color:rgba(255,204,0,.45);
+                                background:rgba(255,204,0,.06);">
+                        <i class="fas fa-hourglass-end"
+                           style="background:linear-gradient(135deg,#ffe600,#ff9500);
+                                  -webkit-background-clip:text;
+                                  -webkit-text-fill-color:transparent;"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold text-yellow-400 mb-2">
+                        Server Expired
+                    </h1>
+
+                    <p class="text-gray-400 text-sm leading-6">
+                        Your server has been expired or the subscription
+                        period has ended.
+                    </p>
+
+                    <div class="server-box">
+                        <div class="server-label">
+                            Server Link
+                        </div>
+
+                        <div class="server-link">
+                            {{ server_link }}
+                        </div>
+                    </div>
+
+                    <p class="text-gray-500 text-xs mb-6">
+                        <i class="fas fa-envelope mr-1"></i>
+                        Please contact the administrator to renew your server.
+                    </p>
+
+                {% elif error_type == "deleted" %}
+
+                    <!-- Deleted -->
+                    <div class="error-icon">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold text-pink-400 mb-2">
+                        Server Not Found
+                    </h1>
+
+                    <p class="text-gray-400 text-sm leading-6">
+                        The server you are trying to access has been deleted
+                        or does not exist.
+                    </p>
+
+                    <div class="server-box">
+                        <div class="server-label">
+                            Requested Link
+                        </div>
+
+                        <div class="server-link">
+                            {{ server_link }}
+                        </div>
+                    </div>
+
+                    <p class="text-gray-500 text-xs mb-6">
+                        <i class="fas fa-user-shield mr-1"></i>
+                        This server may have been removed by the administrator.
+                    </p>
+
+                {% else %}
+
+                    <!-- Unknown Error -->
+                    <div class="error-icon"
+                         style="border-color:rgba(150,150,170,.35);
+                                background:rgba(120,120,140,.06);">
+                        <i class="fas fa-question"
+                           style="background:linear-gradient(135deg,#bfc5d2,#777f91);
+                                  -webkit-background-clip:text;
+                                  -webkit-text-fill-color:transparent;"></i>
+                    </div>
+
+                    <h1 class="text-2xl font-bold text-gray-300 mb-2">
+                        Server Error
+                    </h1>
+
+                    <p class="text-gray-500 text-sm mb-6">
+                        Something went wrong. Please contact support.
+                    </p>
+
+                {% endif %}
+
+                <!-- Contact Admin -->
+                <a href="https://t.me/VerifiedNur"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="contact-btn">
+
+                    <i class="fab fa-telegram-plane"></i>
+                    Contact Admin
+
+                </a>
+
+                <!-- Footer -->
+                <div class="footer">
+                    <i class="fas fa-shield-alt"></i>
+                    ALEXA HOSTING • SECURE SERVER SYSTEM
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>
