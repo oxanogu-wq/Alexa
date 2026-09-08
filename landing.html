@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ALEXA HOSTING - Free Python Bot Hosting</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: #05060b;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* =========================
+           RGB BACKGROUND
+        ========================== */
+
+        .rgb-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -5;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(0,255,255,.12), transparent 28%),
+                radial-gradient(circle at 85% 25%, rgba(255,0,170,.10), transparent 28%),
+                radial-gradient(circle at 50% 90%, rgba(90,0,255,.12), transparent 30%),
+                #05060b;
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -4;
+            opacity: .25;
+            background-image:
+                linear-gradient(rgba(0,255,255,.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,0,170,.08) 1px, transparent 1px);
+            background-size: 45px 45px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            pointer-events: none;
+            opacity: .06;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 3px,
+                #fff 4px
+            );
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: .15;
+            pointer-events: none;
+            z-index: -2;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+
+        .orb.one {
+            width: 180px;
+            height: 180px;
+            background: #00ffff;
+            top: 15%;
+            left: -60px;
+        }
+
+        .orb.two {
+            width: 220px;
+            height: 220px;
+            background: #ff00aa;
+            right: -80px;
+            top: 45%;
+            animation-delay: 2s;
+        }
+
+        .orb.three {
+            width: 180px;
+            height: 180px;
+            background: #7c3cff;
+            left: 40%;
+            bottom: -70px;
+            animation-delay: 4s;
+        }
+
+        @keyframes orbFloat {
+            0%,100% {
+                transform: translate(0,0);
+            }
+            50% {
+                transform: translate(25px,-35px);
+            }
+        }
+
+        /* =========================
+           RGB TEXT
+        ========================== */
+
+        .rgb-text {
+            background: linear-gradient(
+                90deg,
+                #00ffff,
+                #3b82f6,
+                #8b5cf6,
+                #ff00aa,
+                #00ffff
+            );
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rgbText 5s linear infinite;
+        }
+
+        @keyframes rgbText {
+            to {
+                background-position: 300% center;
+            }
+        }
+
+        .gradient-text {
+            background: linear-gradient(
+                90deg,
+                #00ffff,
+                #3b82f6,
+                #a855f7,
+                #ff00aa
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* =========================
+           RGB BORDER
+        ========================== */
+
+        .rgb-border {
+            position: relative;
+            border-radius: 20px;
+            isolation: isolate;
+        }
+
+        .rgb-border::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            z-index: -2;
+            border-radius: inherit;
+            background: conic-gradient(
+                from 0deg,
+                #00ffff,
+                #0066ff,
+                #8b5cf6,
+                #ff00aa,
+                #ff0066,
+                #00ffff
+            );
+            animation: rotateRGB 5s linear infinite;
+        }
+
+        .rgb-border::after {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            z-index: -1;
+            border-radius: inherit;
+            background: #090b12;
+        }
+
+        @keyframes rotateRGB {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =========================
+           NAVBAR
+        ========================== */
+
+        .navbar {
+            background: rgba(5,6,11,.78);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,255,255,.12);
+        }
+
+        .logo-box {
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 0 15px rgba(0,255,255,.35),
+                0 0 35px rgba(255,0,170,.15);
+        }
+
+        .logo-box::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: -100%;
+            top: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,.35),
+                transparent
+            );
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            50%,100% { left: 100%; }
+        }
+
+        /* =========================
+           BUTTONS
+        ========================== */
+
+        .btn-rgb {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 12px;
+            padding: 12px 26px;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg,#087cf5,#6d28d9,#ec4899);
+            box-shadow:
+                0 0 20px rgba(0,150,255,.18);
+            transition: .3s ease;
+        }
+
+        .btn-rgb:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow:
+                0 0 25px rgba(0,255,255,.25),
+                0 0 50px rgba(255,0,170,.15);
+        }
+
+        .btn-dark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 12px 26px;
+            background: rgba(16,18,27,.85);
+            border: 1px solid rgba(255,255,255,.1);
+            transition: .3s ease;
+        }
+
+        .btn-dark:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0,255,255,.5);
+            box-shadow: 0 0 25px rgba(0,255,255,.12);
+        }
+
+        /* =========================
+           HERO
+        ========================== */
+
+        .hero {
+            position: relative;
+            min-height: 720px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 400px;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%,-50%);
+            background: radial-gradient(
+                ellipse,
+                rgba(0,255,255,.10),
+                rgba(140,0,255,.08),
+                transparent 70%
+            );
+            filter: blur(20px);
+            pointer-events: none;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(0,255,255,.25);
+            background: rgba(0,255,255,.06);
+            color: #67e8f9;
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 11px;
+            box-shadow: 0 0 20px rgba(0,255,255,.08);
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: #22d3ee;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #22d3ee;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%,100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .4; transform: scale(.65); }
+        }
+
+        /* =========================
+           ANIME CYBER GUARDIAN
+        ========================== */
+
+        .anime-card {
+            position: relative;
+            width: 270px;
+            height: 330px;
+            margin: auto;
+        }
+
+        .anime-ring {
+            position: absolute;
+            inset: 5px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,255,255,.35);
+            box-shadow:
+                0 0 25px rgba(0,255,255,.15),
+                inset 0 0 30px rgba(255,0,170,.08);
+            animation: ringRotate 8s linear infinite;
+        }
+
+        .anime-ring.two {
+            inset: 25px;
+            border-color: rgba(255,0,170,.3);
+            animation-direction: reverse;
+            animation-duration: 6s;
+        }
+
+        @keyframes ringRotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .anime-body {
+            position: absolute;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 155px;
+            border-radius: 70px 70px 25px 25px;
+            background:
+                linear-gradient(135deg,#172033,#0b1020);
+            border: 1px solid rgba(0,255,255,.4);
+            box-shadow:
+                0 0 30px rgba(0,255,255,.12);
+        }
+
+        .anime-head {
+            position: absolute;
+            width: 115px;
+            height: 125px;
+            left: 50%;
+            top: 42px;
+            transform: translateX(-50%);
+            border-radius: 48% 48% 45% 45%;
+            background: linear-gradient(145deg,#f0c6b7,#d69b91);
+            border: 2px solid rgba(255,255,255,.08);
+            z-index: 3;
+        }
+
+        .anime-hair {
+            position: absolute;
+            width: 132px;
+            height: 120px;
+            left: 50%;
+            top: 20px;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg,#111827,#312e81,#7c3aed);
+            border-radius: 60% 55% 35% 45%;
+            z-index: 4;
+            clip-path: polygon(
+                0 0,100% 0,100% 70%,
+                85% 52%,82% 100%,
+                65% 68%,55% 96%,
+                43% 65%,25% 95%,
+                22% 60%,0 75%
+            );
+        }
+
+        .anime-face {
+            position: absolute;
+            z-index: 5;
+            left: 50%;
+            top: 88px;
+            transform: translateX(-50%);
+            width: 92px;
+        }
+
+        .eyes {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 12px;
+        }
+
+        .eye {
+            width: 14px;
+            height: 7px;
+            border-bottom: 2px solid #172554;
+            border-radius: 50%;
+        }
+
+        .mouth {
+            width: 22px;
+            height: 8px;
+            border-bottom: 2px solid #9f1239;
+            border-radius: 50%;
+            margin: 17px auto 0;
+        }
+
+        .visor {
+            position: absolute;
+            left: 50%;
+            top: 112px;
+            transform: translateX(-50%);
+            width: 145px;
+            height: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,255,255,.7);
+            background: rgba(0,255,255,.08);
+            box-shadow: 0 0 15px rgba(0,255,255,.25);
+            z-index: 7;
+        }
+
+        .anime-label {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            background: rgba(7,9,16,.9);
+            border: 1px solid rgba(0,255,255,.3);
+            border-radius: 999px;
+            padding: 6px 13px;
+            color: #67e8f9;
+            font-size: 9px;
+            letter-spacing: 2px;
+        }
+
+        /* =========================
+           CARDS
+        ========================== */
+
+        .card {
+            position: relative;
+            background: rgba(10,12,20,.72);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 18px;
+            transition: .35s ease;
+            backdrop-filter: blur(12px);
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0,255,255,.35);
+            box-shadow:
+                0 20px 50px rgba(0,0,0,.35),
+                0 0 25px rgba(0,255,255,.06);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            font-size: 20px;
+        }
+
+        /* =========================
+           STATS
+        ========================== */
+
+        .stat-box {
+            position: relative;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(
+                90deg,
+                #00ffff,
+                #3b82f6,
+                #c084fc,
+                #ff00aa
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 250% auto;
+            animation: rgbText 4s linear infinite;
+        }
+
+        @media (min-width:768px) {
+            .stat-number {
+                font-size: 2.7rem;
+            }
+        }
+
+        /* =========================
+           PRICING
+        ========================== */
+
+        .pricing-card {
+            position: relative;
+            background: rgba(10,12,20,.82);
+            border: 1px solid rgba(255,255,255,.09);
+            border-radius: 22px;
+            transition: .35s ease;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0,255,255,.4);
+            box-shadow: 0 25px 60px rgba(0,0,0,.35);
+        }
+
+        .pricing-card.popular {
+            border-color: rgba(0,255,255,.5);
+            box-shadow:
+                0 0 35px rgba(0,255,255,.08);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: linear-gradient(90deg,#06b6d4,#8b5cf6,#ec4899);
+            padding: 5px 11px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        /* =========================
+           HOW IT WORKS
+        ========================== */
+
+        .step-number {
+            position: relative;
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            border-radius: 20px;
+            font-size: 22px;
+            font-weight: 900;
+            background: linear-gradient(
+                135deg,
+                #0891b2,
+                #2563eb,
+                #7c3aed,
+                #db2777
+            );
+            box-shadow:
+                0 0 25px rgba(59,130,246,.2);
+        }
+
+        .step-number::before {
+            content: "";
+            position: absolute;
+            inset: -3px;
+            border-radius: 23px;
+            background: linear-gradient(
+                90deg,
+                #00ffff,
+                #8b5cf6,
+                #ff00aa,
+                #00ffff
+            );
+            background-size: 300%;
+            animation: rgbText 3s linear infinite;
+            z-index: -1;
+        }
+
+        /* =========================
+           FOOTER
+        ========================== */
+
+        footer {
+            background: rgba(4,5,9,.7);
+        }
+
+        /* =========================
+           MOBILE
+        ========================== */
+
+        @media (max-width: 767px) {
+            .hero {
+                min-height: auto;
+            }
+
+            .anime-card {
+                transform: scale(.82);
+                margin-top: -20px;
+                margin-bottom: -25px;
+            }
+
+            .hero-glow {
+                width: 320px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background -->
+    <div class="rgb-bg"></div>
+    <div class="grid-bg"></div>
+    <div class="scanlines"></div>
+
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <nav class="navbar fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-4 md:px-6 py-3 md:py-4
+                    flex justify-between items-center">
+
+            <a href="#" class="flex items-center gap-2 md:gap-3">
+
+                <div class="logo-box w-9 h-9 md:w-11 md:h-11
+                            rounded-xl flex items-center justify-center
+                            bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600">
+
+                    <i class="fas fa-cloud-upload-alt text-white"></i>
+                </div>
+
+                <div>
+                    <div class="text-lg md:text-xl font-black tracking-wide">
+                        ALEXA <span class="rgb-text">HOSTING</span>
+                    </div>
+
+                    <div class="hidden sm:block text-[8px] text-gray-500
+                                tracking-[3px] uppercase">
+                        Next Generation Hosting
+                    </div>
+                </div>
+
+            </a>
+
+            <div class="hidden lg:flex items-center gap-7 text-sm">
+
+                <a href="#features"
+                   class="text-gray-400 hover:text-cyan-300 transition">
+                    Features
+                </a>
+
+                <a href="#pricing"
+                   class="text-gray-400 hover:text-cyan-300 transition">
+                    Pricing
+                </a>
+
+                <a href="#how"
+                   class="text-gray-400 hover:text-cyan-300 transition">
+                    How It Works
+                </a>
+
+                <a href="#faq"
+                   class="text-gray-400 hover:text-cyan-300 transition">
+                    FAQ
+                </a>
+
+            </div>
+
+            <a href="https://t.me/freepainerobot"
+               target="_blank"
+               class="btn-rgb text-xs md:text-sm !py-2.5 !px-4 md:!px-6">
+
+                <i class="fab fa-telegram-plane"></i>
+
+                <span class="hidden sm:inline">
+                    Get Started
+                </span>
+
+            </a>
+
+        </div>
+    </nav>
+
+
+    <!-- =========================
+         HERO
+    ========================== -->
+
+    <section class="hero pt-28 md:pt-32 pb-14 md:pb-20 px-4 md:px-6">
+
+        <div class="hero-glow"></div>
+
+        <div class="container mx-auto max-w-6xl">
+
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-14
+                        items-center">
+
+                <!-- LEFT -->
+
+                <div class="text-center lg:text-left">
+
+                    <div class="badge mb-5 md:mb-7">
+
+                        <span class="pulse-dot"></span>
+
+                        🚀 FREE PYTHON BOT HOSTING
+
+                    </div>
+
+                    <h1 class="text-4xl md:text-6xl lg:text-7xl
+                               font-black leading-tight mb-5">
+
+                        Host Your
+
+                        <span class="rgb-text">
+                            Python Bots
+                        </span>
+
+                        <br>
+
+                        <span class="text-white">
+                            24/7 For Free
+                        </span>
+
+                    </h1>
+
+                    <p class="text-gray-400 text-sm md:text-lg
+                              max-w-2xl mx-auto lg:mx-0 mb-8">
+
+                        The next-generation platform for hosting
+                        Telegram and Discord bots. Get instant setup,
+                        automatic recovery, file manager and
+                        real-time monitoring.
+
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row
+                                gap-3 justify-center lg:justify-start">
+
+                        <a href="https://t.me/freepainerobot"
+                           target="_blank"
+                           class="btn-rgb w-full sm:w-auto">
+
+                            <i class="fab fa-telegram-plane"></i>
+
+                            Get Started Free
+
+                        </a>
+
+                        <a href="https://t.me/"
+                           target="_blank"
+                           class="btn-dark w-full sm:w-auto">
+
+                            <i class="fab fa-telegram"></i>
+
+                            Contact Developer
+
+                        </a>
+
+                    </div>
+
+                    <!-- Stats -->
+
+                    <div class="grid grid-cols-3 gap-5
+                                mt-10 md:mt-14 max-w-lg
+                                mx-auto lg:mx-0">
+
+                        <div class="stat-box">
+
+                            <div class="stat-number">
+                                500+
+                            </div>
+
+                            <div class="text-gray-500 text-[9px] md:text-xs">
+                                Active Panels
+                            </div>
+
+                        </div>
+
+                        <div class="stat-box">
+
+                            <div class="stat-number">
+                                24/7
+                            </div>
+
+                            <div class="text-gray-500 text-[9px] md:text-xs">
+                                Uptime
+                            </div>
+
+                        </div>
+
+                        <div class="stat-box">
+
+                            <div class="stat-number">
+                                FREE
+                            </div>
+
+                            <div class="text-gray-500 text-[9px] md:text-xs">
+                                Forever
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RIGHT : CYBER ANIME -->
+
+                <div class="hidden sm:flex justify-center">
+
+                    <div class="anime-card float">
+
+                        <div class="anime-ring"></div>
+                        <div class="anime-ring two"></div>
+
+                        <div class="anime-body"></div>
+
+                        <div class="anime-hair"></div>
+
+                        <div class="anime-head"></div>
+
+                        <div class="anime-face">
+
+                            <div class="eyes">
+                                <span class="eye"></span>
+                                <span class="eye"></span>
+                            </div>
+
+                            <div class="mouth"></div>
+
+                        </div>
+
+                        <div class="visor"></div>
+
+                        <div class="anime-label">
+                            ALEXA CORE • ONLINE
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FEATURES
+    ========================== -->
+
+    <section id="features"
+             class="py-16 md:py-24 px-4 md:px-6">
+
+        <div class="container mx-auto max-w-6xl">
+
+            <div class="text-center mb-12 md:mb-16">
+
+                <div class="text-cyan-400 text-[10px]
+                            tracking-[4px] uppercase mb-3">
+                    SYSTEM FEATURES
+                </div>
+
+                <h2 class="text-3xl md:text-5xl font-black">
+
+                    Why Choose
+
+                    <span class="rgb-text">
+                        ALEXA HOSTING
+                    </span>?
+
+                </h2>
+
+                <p class="text-gray-400 text-sm md:text-base mt-4">
+                    Everything you need to run your Python bots.
+                </p>
+
+            </div>
+
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                <!-- Feature 1 -->
+
+                <div class="card p-5 md:p-7">
+
+                    <div class="feature-icon bg-cyan-500/10
+                                text-cyan-400 mb-5">
+
+                        <i class="fas fa-bolt"></i>
+
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-2">
+                        Instant Setup
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Create your hosting panel in seconds
+                        without complicated configuration.
+                    </p>
+
+                </div>
+
+
+                <!-- Feature 2 -->
+
+                <div class="card p-5 md:p-7">
+
+                    <div class="feature-icon bg-green-500/10
+                                text-green-400 mb-5">
+
+                        <i class="fas fa-shield-halved"></i>
+
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-2">
+                        24/7 Uptime
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Keep your bots online around the clock
+                        with automatic crash recovery.
+                    </p>
+
+                </div>
+
+
+                <!-- Feature 3 -->
+
+                <div class="card p-5 md:p-7">
+
+                    <div class="feature-icon bg-purple-500/10
+                                text-purple-400 mb-5">
+
+                        <i class="fas fa-gift"></i>
+
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-2">
+                        Referral Rewards
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Invite friends and unlock free hosting
+                        rewards.
+                    </p>
+
+                </div>
+
+
+                <!-- Feature 4 -->
+
+                <div class="card p-5 md:p-7">
+
+                    <div class="feature-icon bg-yellow-500/10
+                                text-yellow-400 mb-5">
+
+                        <i class="fas fa-file-code"></i>
+
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-2">
+                        File Manager
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Upload, edit, rename and manage files
+                        directly from your browser.
+                    </p>
+
+                </div>
+
+
+                <!-- Feature 5 -->
+
+                <div class="card p-5 md:p-7">
+
+                    <div class="feature-icon bg-pink-500/10
+                                text-pink-400 mb-5">
+
+                        <i class="fas fa-terminal"></i>
+
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-2">
+                        Web Console
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Monitor your bot output with a
+                        real-time web console.
+                    </p>
+
+                </div>
+
+
+                <!-- Feature 6 -->
+
+                <div class="card p-5 md:p-7">
+
+                    <div class="feature-icon bg-blue-500/10
+                                text-blue-400 mb-5">
+
+                        <i class="fas fa-gauge-high"></i>
+
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-2">
+                        Resource Monitor
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Track CPU, RAM and network resources
+                        in real time.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         HOW IT WORKS
+    ========================== -->
+
+    <section id="how"
+             class="py-16 md:py-24 px-4 md:px-6
+                    bg-black/20 border-y border-white/5">
+
+        <div class="container mx-auto max-w-5xl">
+
+            <div class="text-center mb-14">
+
+                <div class="text-purple-400 text-[10px]
+                            tracking-[4px] uppercase mb-3">
+                    SIMPLE PROCESS
+                </div>
+
+                <h2 class="text-3xl md:text-5xl font-black">
+
+                    How It
+
+                    <span class="rgb-text">
+                        Works
+                    </span>
+
+                </h2>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-10">
+
+                <div class="text-center">
+
+                    <div class="step-number mb-5">
+                        1
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-2">
+                        Join Telegram Bot
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Start our Telegram bot and verify your account.
+                    </p>
+
+                </div>
+
+
+                <div class="text-center">
+
+                    <div class="step-number mb-5">
+                        2
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-2">
+                        Share Referral
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Invite people using your referral link.
+                    </p>
+
+                </div>
+
+
+                <div class="text-center">
+
+                    <div class="step-number mb-5">
+                        3
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-2">
+                        Claim Your Panel
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Create your panel and start hosting instantly.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         PRICING
+    ========================== -->
+
+    <section id="pricing"
+             class="py-16 md:py-24 px-4 md:px-6">
+
+        <div class="container mx-auto max-w-5xl">
+
+            <div class="text-center mb-14">
+
+                <div class="text-pink-400 text-[10px]
+                            tracking-[4px] uppercase mb-3">
+                    PLANS & ACCESS
+                </div>
+
+                <h2 class="text-3xl md:text-5xl font-black">
+
+                    Simple
+
+                    <span class="rgb-text">
+                        Pricing
+                    </span>
+
+                </h2>
+
+                <p class="text-gray-400 mt-4 text-sm">
+                    Start free and upgrade whenever you need.
+                </p>
+
+            </div>
+
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                <!-- FREE -->
+
+                <div class="pricing-card p-6 md:p-8 text-center">
+
+                    <div class="text-4xl mb-4">
+                        🆓
+                    </div>
+
+                    <h3 class="font-bold text-xl mb-2">
+                        Free
+                    </h3>
+
+                    <p class="text-gray-500 text-xs mb-6">
+                        Via Referrals
+                    </p>
+
+                    <div class="text-4xl font-black mb-7">
+                        $0
+                    </div>
+
+                    <ul class="text-xs text-gray-400
+                               space-y-3 mb-8 text-left">
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            5 Referrals Required
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            3 Days Validity
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            1GB RAM / 1GB Disk
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            30% CPU Limit
+                        </li>
+
+                    </ul>
+
+                    <a href="https://t.me/freepainerobot"
+                       target="_blank"
+                       class="btn-dark w-full">
+
+                        Get Free
+
+                    </a>
+
+                </div>
+
+
+                <!-- STANDARD -->
+
+                <div class="pricing-card popular p-6 md:p-8 text-center">
+
+                    <div class="popular-badge">
+                        🔥 MOST POPULAR
+                    </div>
+
+                    <div class="text-4xl mb-4">
+                        ⭐
+                    </div>
+
+                    <h3 class="font-bold text-xl mb-2">
+                        Standard
+                    </h3>
+
+                    <p class="text-gray-500 text-xs mb-6">
+                        7 Days Panel
+                    </p>
+
+                    <div class="text-4xl font-black mb-7">
+                        $2
+                    </div>
+
+                    <ul class="text-xs text-gray-400
+                               space-y-3 mb-8 text-left">
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            No Referrals Needed
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            7 Days Validity
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            1GB RAM / 1GB Disk
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            50% CPU Limit
+                        </li>
+
+                    </ul>
+
+                    <a href="https://t.me/thekingvip8"
+                       target="_blank"
+                       class="btn-rgb w-full">
+
+                        Buy Now
+
+                    </a>
+
+                </div>
+
+
+                <!-- PREMIUM -->
+
+                <div class="pricing-card p-6 md:p-8 text-center
+                            sm:col-span-2 lg:col-span-1">
+
+                    <div class="text-4xl mb-4">
+                        💎
+                    </div>
+
+                    <h3 class="font-bold text-xl mb-2">
+                        Premium
+                    </h3>
+
+                    <p class="text-gray-500 text-xs mb-6">
+                        30 Days Panel
+                    </p>
+
+                    <div class="text-4xl font-black mb-7">
+                        $5
+                    </div>
+
+                    <ul class="text-xs text-gray-400
+                               space-y-3 mb-8 text-left">
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            No Referrals Needed
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            30 Days Validity
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            2GB RAM / 2GB Disk
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            80% CPU Limit
+                        </li>
+
+                    </ul>
+
+                    <a href="https://t.me/thekingvip8"
+                       target="_blank"
+                       class="btn-rgb w-full">
+
+                        Buy Now
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FAQ
+    ========================== -->
+
+    <section id="faq"
+             class="py-16 md:py-24 px-4 md:px-6
+                    bg-black/20 border-y border-white/5">
+
+        <div class="container mx-auto max-w-3xl">
+
+            <div class="text-center mb-14">
+
+                <div class="text-cyan-400 text-[10px]
+                            tracking-[4px] uppercase mb-3">
+                    KNOWLEDGE BASE
+                </div>
+
+                <h2 class="text-3xl md:text-5xl font-black">
+
+                    Frequently
+
+                    <span class="rgb-text">
+                        Asked Questions
+                    </span>
+
+                </h2>
+
+            </div>
+
+
+            <div class="space-y-4">
+
+                <div class="card p-5 md:p-6">
+
+                    <h3 class="font-bold text-sm md:text-base mb-2">
+                        🤔 How do I get a free panel?
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Share your referral link with 5 people.
+                        When they join through your link, you
+                        can claim a free panel.
+                    </p>
+
+                </div>
+
+
+                <div class="card p-5 md:p-6">
+
+                    <h3 class="font-bold text-sm md:text-base mb-2">
+                        ⚡ How fast is the setup?
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Setup is designed to be instant. Upload
+                        your bot and start it from your panel.
+                    </p>
+
+                </div>
+
+
+                <div class="card p-5 md:p-6">
+
+                    <h3 class="font-bold text-sm md:text-base mb-2">
+                        🔄 What happens after expiry?
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Your panel expires according to the selected
+                        plan. You can obtain another panel through
+                        the available referral or paid options.
+                    </p>
+
+                </div>
+
+
+                <div class="card p-5 md:p-6">
+
+                    <h3 class="font-bold text-sm md:text-base mb-2">
+                        🐍 What Python version is supported?
+                    </h3>
+
+                    <p class="text-gray-400 text-xs md:text-sm">
+                        Python 3.12+ is supported with automatic
+                        requirements.txt package installation.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         CTA
+    ========================== -->
+
+    <section class="py-20 md:py-28 px-4 md:px-6 text-center">
+
+        <div class="container mx-auto max-w-3xl">
+
+            <div class="rgb-border p-8 md:p-12">
+
+                <div class="relative z-10">
+
+                    <div class="text-4xl mb-5">
+                        ⚡
+                    </div>
+
+                    <h2 class="text-3xl md:text-5xl
+                               font-black mb-5">
+
+                        Ready To
+
+                        <span class="rgb-text">
+                            Get Started?
+                        </span>
+
+                    </h2>
+
+                    <p class="text-gray-400 text-sm md:text-base mb-8">
+                        Join developers hosting their bots
+                        with ALEXA HOSTING.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row
+                                gap-3 justify-center">
+
+                        <a href="https://t.me/freepainerobot"
+                           target="_blank"
+                           class="btn-rgb">
+
+                            <i class="fab fa-telegram-plane"></i>
+
+                            Get Started Free
+
+                        </a>
+
+                        <a href="https://t.me/thekingvip8"
+                           target="_blank"
+                           class="btn-dark">
+
+                            <i class="fab fa-telegram"></i>
+
+                            Contact Developer
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="border-t border-white/10
+                   py-10 md:py-12 px-4 md:px-6">
+
+        <div class="container mx-auto max-w-6xl">
+
+            <div class="grid grid-cols-1
+                        sm:grid-cols-2 md:grid-cols-3
+                        gap-8 mb-8">
+
+                <!-- BRAND -->
+
+                <div>
+
+                    <div class="flex items-center gap-3 mb-4">
+
+                        <div class="logo-box w-10 h-10
+                                    rounded-xl flex items-center
+                                    justify-center
+                                    bg-gradient-to-br
+                                    from-cyan-500
+                                    via-blue-600
+                                    to-purple-600">
+
+                            <i class="fas fa-cloud-upload-alt"></i>
+
+                        </div>
+
+                        <span class="text-xl font-black">
+                            ALEXA
+                            <span class="rgb-text">
+                                HOSTING
+                            </span>
+                        </span>
+
+                    </div>
+
+                    <p class="text-gray-500 text-xs md:text-sm">
+                        Next-generation free Python bot hosting
+                        platform with powerful tools and monitoring.
+                    </p>
+
+                </div>
+
+
+                <!-- LINKS -->
+
+                <div>
+
+                    <h4 class="font-bold mb-4">
+                        Quick Links
+                    </h4>
+
+                    <ul class="text-gray-500 text-xs md:text-sm
+                               space-y-2">
+
+                        <li>
+                            <a href="https://t.me/freepainerobot"
+                               target="_blank"
+                               class="hover:text-cyan-400 transition">
+                                Telegram Bot
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="https://t.me/thekingvip8"
+                               target="_blank"
+                               class="hover:text-cyan-400 transition">
+                                Support
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="https://t.me/CODEXAPIS"
+                               target="_blank"
+                               class="hover:text-cyan-400 transition">
+                                Channel
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="https://t.me/FFIRELIKEGROUP"
+                               target="_blank"
+                               class="hover:text-cyan-400 transition">
+                                Group
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <!-- CONTACT -->
+
+                <div>
+
+                    <h4 class="font-bold mb-4">
+                        Contact
+                    </h4>
+
+                    <ul class="text-gray-500 text-xs md:text-sm
+                               space-y-3">
+
+                        <li>
+                            <i class="fab fa-telegram-plane mr-2"></i>
+                            @VerifiedNur
+                        </li>
+
+                        <li class="break-all">
+                            <i class="fas fa-server mr-2"></i>
+                            http://212.227.7.153:11517
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+
+            <div class="border-t border-white/10
+                        pt-6 text-center text-gray-600
+                        text-[10px] md:text-xs">
+
+                <span class="rgb-text font-bold">
+                    ALEXA HOSTING
+                </span>
+
+                © 2026 • All rights reserved.
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =========================
+         SIMPLE JS
+    ========================== -->
+
+    <script>
+
+        // Prevent accidental horizontal overflow
+        document.documentElement.style.overflowX = "hidden";
+
+        // Add active glow to clicked navbar links
+        document.querySelectorAll("nav a[href^='#']").forEach(link => {
+
+            link.addEventListener("click", () => {
+
+                document.querySelectorAll("nav a[href^='#']")
+                    .forEach(item => item.classList.remove("text-cyan-300"));
+
+                link.classList.add("text-cyan-300");
+
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>
